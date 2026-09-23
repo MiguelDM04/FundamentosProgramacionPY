@@ -1,2 +1,2 @@
-01 Mi Proyecto
-# FundamentosProgramacionPY
+Proyecto Final para el curso Fundamentos de Programacion con Python
+Utilizando el framework FASTApi y guardando los datos en un .txt
