@@ -1,2 +1,0 @@
-EXP-001,12345678,Miguel Deza Montoya,Solicitud de Licencia,True
-EXP-002,12345555,Jose Rodriguez Cevallos,Solicitud de Licencia de Conducir,False
