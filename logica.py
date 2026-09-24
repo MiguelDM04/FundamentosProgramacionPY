@@ -22,12 +22,13 @@ def ordenar_expedientes():
                 expedientes[j], expedientes[j + 1] = expedientes[j + 1], expedientes[j]
     return expedientes
 
-def actualizar_expediente(codigo_buscado, nuevo_nombre, nuevo_tramite):
+def actualizar_expediente(codigo_buscado,corregido_dni, nuevo_nombre, nuevo_tramite):
     """Actualiza los datos de un expediente segun el codigo"""
     expedientes = leer_expedientes()
     encontrado = False
     for exp in expedientes:
         if exp[0].upper() == codigo_buscado.upper() and exp[4] == "True":
+            exp[1] = corregido_dni
             exp[2] = nuevo_nombre
             exp[3] = nuevo_tramite
             encontrado = True

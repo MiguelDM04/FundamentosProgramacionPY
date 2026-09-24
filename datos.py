@@ -23,5 +23,5 @@ def rewrite_expedientes(lista_expedientes):
     """Sobreescribe el archivo completo"""
     with open(archivo_datos, "w", encoding="utf-8") as archivo:
         for exp in lista_expedientes:
-            linea = f"{exp[0]}, {exp[1]}, {exp[2]}, {exp[3]}, {exp[4]}\n"
+            linea = f"{exp[0]},{exp[1]},{exp[2]},{exp[3]},{exp[4]}\n"
             archivo.write(linea)
