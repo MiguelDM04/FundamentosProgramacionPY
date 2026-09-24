@@ -51,3 +51,11 @@ def desactivar_expediente(codigo_buscado):
         rewrite_expedientes(expedientes)
         return True
     return False
+
+def verificar_codigo(codigo_buscado):
+    """Verifica si el codigo ya existe sea activo o inactivo"""
+    expedientes = leer_expedientes()
+    for exp in expedientes:
+        if exp[0].upper() == codigo_buscado.upper():
+            return True
+    return False

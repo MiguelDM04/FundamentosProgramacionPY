@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from datos import guardar_expediente
-from logica import validar_dni, buscar_expediente, ordenar_expedientes, actualizar_expediente, desactivar_expediente
+from logica import validar_dni, buscar_expediente, ordenar_expedientes, actualizar_expediente, desactivar_expediente, verificar_codigo
 
 app = FastAPI(
     title="Mesa de Partes Digital",
@@ -26,9 +26,8 @@ def registrar(exp: ExpedienteRequest):
     if not validar_dni(exp.dni):
         raise HTTPException(status_code=400, detail="DNI invalido. Debe contener 8 digitos numericos")
 
-    #Verificar si ya existe el codigo
-    if buscar_expediente(exp.codigo):
-        raise HTTPException(status_code=400, detail="El codigo de expediente ya existe. Inserte uno nuevo")
+    if verificar_codigo(exp.codigo): 
+        raise HTTPException(status_code=400, detail="El codigo ya existe o esto tomado por un registro antiguo.Por favor inserte uno nuevo")
 
     guardar_expediente(exp.codigo, exp.dni, exp.nombreCompleto, exp.tramite, "True")
     return {"mensaje": "Expediente registrado y almacenado correctamente. ", "datos":exp}
