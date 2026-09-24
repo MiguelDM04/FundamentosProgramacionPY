@@ -1,4 +1,4 @@
-from datos import leer_expedientes
+from datos import leer_expedientes, rewrite_expedientes
 
 def validar_dni(dni):
     """" isdigit valida que sea numeros | len(dni) que la length sea de 8"""
@@ -21,3 +21,32 @@ def ordenar_expedientes():
             if expedientes[j][0] > expedientes[j + 1] [0]:
                 expedientes[j], expedientes[j + 1] = expedientes[j + 1], expedientes[j]
     return expedientes
+
+def actualizar_expediente(codigo_buscado, nuevo_nombre, nuevo_tramite):
+    """Actualiza los datos de un expediente segun el codigo"""
+    expedientes = leer_expedientes()
+    encontrado = False
+    for exp in expedientes:
+        if exp[0].upper() == codigo_buscado.upper() and exp[4] == "True":
+            exp[2] = nuevo_nombre
+            exp[3] = nuevo_tramite
+            encontrado = True
+            break
+    if encontrado:
+        rewrite_expedientes(expedientes)
+        return True
+    return False
+
+def desactivar_expediente(codigo_buscado):
+    """Cambia el estado a false para un delete logico"""
+    expedientes = leer_expedientes()
+    encontrado = False
+    for exp in expedientes:
+        if exp[0].upper() == codigo_buscado.upper() and exp[4] == "True":
+            exp[4] = "False"
+            encontrado = True
+            break
+    if encontrado:
+        rewrite_expedientes(expedientes)
+        return True
+    return False
