@@ -59,3 +59,17 @@ def verificar_codigo(codigo_buscado):
         if exp[0].upper() == codigo_buscado.upper():
             return True
     return False
+
+def activar_expediente(codigo_buscado):
+    """Cambia el estado a true para un activado logico"""
+    expedientes = leer_expedientes()
+    encontrado = False
+    for exp in expedientes:
+        if exp[0].upper() == codigo_buscado.upper() and exp[4] == "False":
+            exp[4] = "True"
+            encontrado = True
+            break
+    if encontrado:
+        rewrite_expedientes(expedientes)
+        return True
+    return False

@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from datos import guardar_expediente
-from logica import validar_dni, buscar_expediente, ordenar_expedientes, actualizar_expediente, desactivar_expediente, verificar_codigo
-
+from logica import validar_dni, buscar_expediente, ordenar_expedientes, actualizar_expediente, desactivar_expediente, verificar_codigo, activar_expediente
+#probar scalar luego
 app = FastAPI(
     title="Mesa de Partes Digital",
     description="API desarrollada para avance desafio de Fundamentos de Programacion - Semana07 - Grupo 01",
@@ -58,3 +58,9 @@ def eliminar(codigo: str):
         raise HTTPException(status_code=404, detail="No se pudo eliminar. El expediente es inexistente o no esta activado")
     return {"mensaje": f"Expediente {codigo} eliminado correctamente"}
 
+@app.patch("/expedientes/{codigo}/activar", summary="Activar expediente desactivado anteriormente")
+def activar(codigo: str):
+    exito = activar_expediente(codigo)
+    if not exito:
+        raise HTTPException(status_code=404, detail="No se pudo activar. El expediente no existe o ya esta activado")
+    return {"mensaje": f"Expediente {codigo} activado correctamente"}
