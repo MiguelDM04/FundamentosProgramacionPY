@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
-from datos import guardar_expediente, leer_expedientes
+from datos import guardar_expediente
 from logica import validar_dni, buscar_expediente, ordenar_expedientes
 
 app = FastAPI(
