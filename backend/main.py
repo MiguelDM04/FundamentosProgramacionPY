@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from datos import guardar_expediente
 from logica import validar_dni, buscar_expediente, ordenar_expedientes, actualizar_expediente, desactivar_expediente, verificar_codigo, activar_expediente
-#probar scalar luego
+
 app = FastAPI(
     title="Mesa de Partes Digital",
     description="API desarrollada para avance desafio de Fundamentos de Programacion - Semana07 - Grupo 01",
@@ -46,6 +46,10 @@ def consultar(codigo: str):
 
 @app.put("/expedientes/{codigo}", summary="Actualizar expediente por codigo")
 def actualizar(codigo: str, exp_upd: ExpedienteUpdateRequest):
+    # verifica formato en caso de correcion de dni
+    if not validar_dni(exp_upd.dni):
+        raise HTTPException(status_code=400, detail="DNI inválido. Debe contener 8 dígitos numéricos")
+
     exito = actualizar_expediente(codigo, exp_upd.dni, exp_upd.nombreCompleto, exp_upd.tramite)
     if not exito:
         raise HTTPException(status_code=404, detail="El expediente debe de existir o estar activo para actualizarse.")

@@ -2,7 +2,7 @@ import os
 
 archivo_datos = "expedientes.txt"
 
-def guardar_expediente(codigo, dni, nombreCompleto, tramite, estado=True):
+def guardar_expediente(codigo, dni, nombreCompleto, tramite, estado="True"):
     """ Guardar expediente en un archivo de texto"""
     linea = f"{codigo},{dni},{nombreCompleto},{tramite},{estado}\n"
     with open(archivo_datos, "a", encoding="utf-8") as archivo:
