@@ -9,7 +9,7 @@ def guardar_expediente(codigo, dni, nombreCompleto, tramite, estado=True):
         archivo.write(linea)
 
 def leer_expedientes():
-    """"Leer todos los expedientes del archivo y lo retorna como lista de diccionarios"""
+    """"Leer todos los expedientes del archivo y lo retorna como lista de listas"""
     expedientes = []
     if os.path.exists(archivo_datos):
         with open(archivo_datos, "r", encoding="utf-8") as archivo:
