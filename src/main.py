@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from datos import guardar_expediente
 from logica import validar_dni, buscar_expediente, ordenar_expedientes, actualizar_expediente, desactivar_expediente, verificar_codigo, activar_expediente
@@ -6,8 +8,10 @@ from logica import validar_dni, buscar_expediente, ordenar_expedientes, actualiz
 app = FastAPI(
     title="Mesa de Partes Digital",
     description="API desarrollada para avance desafio de Fundamentos de Programacion - Semana07 - Grupo 01",
-    version="1.0.1"
+    version="1.1.0"
 )
+
+templates = Jinja2Templates(directory="templates")
 
 class ExpedienteRequest(BaseModel):
     codigo: str = Field(..., example="EXP-001")
