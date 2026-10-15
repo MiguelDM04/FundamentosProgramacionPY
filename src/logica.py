@@ -97,8 +97,8 @@ def ordenar_expedientes():
 
 def buscar_expediente_texto(texto):
     expedientes = leer_expedientes()
-    resultados = []#crea lista vacia
-    texto_limpio = texto.strip().lower()
+    resultados = []#crea lista vacia/arreglo unidimensional
+    texto_limpio = texto.strip().lower()#lo hace lowercase y quita espacios
     for exp in expedientes:#recorre la lista
         if exp[12] == "True":
             nombre = exp[2].lower()
@@ -108,10 +108,10 @@ def buscar_expediente_texto(texto):
                 resultados.append({"codigo": exp[0], "nombreCompleto": exp[2], "asunto": exp[7], "descripcion": exp[8]})
     return resultados
 
-#paralelo
+#arreglo paralelo
 def generar_reporte():
     expedientes = leer_expedientes()
-    array_codigos = []
+    array_codigos = []#Cada [] de estos es una lista simple/ arreglo unidimensional
     array_nombres = []
     array_progresos = []
 
@@ -122,7 +122,7 @@ def generar_reporte():
             array_progresos.append(exp[9])
 
     reporte = []
-    for i in range(len(array_codigos)):
+    for i in range(len(array_codigos)):#recorre las listas al mismo tiempo para relacionar los datos por posicion
         reporte.append({"codigo": array_codigos[i], "nombre": array_nombres[i], "estado_tramite": array_progresos[i]})#agrega a lista de reporte
     return reporte
 
