@@ -1,8 +1,8 @@
 import hashlib
 from datetime import datetime
 from datos import (
-    leer_expedientes, guardar_expediente, actualizar_expediente, obtener_usuario,
-    guardar_usuario, leer_usuarios, desactivar_usuario, activar_usuario, 
+    leer_expedientes, guardar_expediente, actualizar_expediente_db, obtener_usuario,
+    guardar_usuario, leer_usuarios, desactivar_usuario, activar_usuario_db, 
     actualizar_usuario, obtener_ultimo_codigo
 )
 
@@ -42,7 +42,7 @@ def eliminar_usuario(username, username_admin):
 def activar_usuario(username):
     user = obtener_usuario(username)
     if user and user[4] == "False":#se valida que su estado este como false osea eliminado
-        activar_usuario(username)
+        activar_usuario_db(username)
         return True
     return False
 
@@ -134,7 +134,7 @@ def actualizar_expediente(codigo, correo, celular, direccion, tramite, asunto, d
         fecha_mod = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         username = exp["usuario_username"]
         actualizar_usuario(username, correo, celular, direccion)
-        actualizar_expediente(codigo, tramite, asunto, descripcion, progreso, fecha_mod, "True")
+        actualizar_expediente_db(codigo, tramite, asunto, descripcion, progreso, fecha_mod, "True")
         return True
     return False
 
@@ -142,7 +142,7 @@ def desactivar_expediente(codigo):
     exp = buscar_expediente(codigo)
     if exp:
         fecha_mod = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        actualizar_expediente(codigo, exp["tramite"], exp["asunto"], exp["descripcion"], exp["progreso"], fecha_mod, "False")
+        actualizar_expediente_db(codigo, exp["tramite"], exp["asunto"], exp["descripcion"], exp["progreso"], fecha_mod, "False")
         return True
     return False
 
@@ -151,6 +151,6 @@ def activar_expediente(codigo_buscado):
     for exp in expedientes:
         if exp[0].upper() == codigo_buscado.upper() and exp[12] == "False":
             fecha_mod = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-            actualizar_expediente(exp[0], exp[6], exp[7], exp[8], exp[9], fecha_mod, "True")
+            actualizar_expediente_db(exp[0], exp[6], exp[7], exp[8], exp[9], fecha_mod, "True")
             return True
     return False

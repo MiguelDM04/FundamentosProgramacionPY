@@ -95,7 +95,7 @@ def desactivar_usuario(username):
     conexion.commit()
     conexion.close()
 
-def activar_usuario(username):
+def activar_usuario_db(username):
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("UPDATE usuarios SET estado = 'True' WHERE username = ?", (username,))
@@ -135,10 +135,10 @@ def leer_expedientes():
     filas = cursor.fetchall()
     conexion.close()
     # Se convierte los registro de SQLite a listas para poder ordenar | arreglo bidimensional
-    return [list(fila) for fila in filas]#recorre los registros y los convierte en una lista de python ['codigo', 'dni', etc]
+    return [list(fila) for fila in filas]#recorre los registros y obtiene una lista de expedientes donde tiene una lista con todo sus datos
 
 
-def actualizar_expediente(codigo, tramite, asunto, descripcion, progreso, fecha_modificacion, estado):
+def actualizar_expediente_db(codigo, tramite, asunto, descripcion, progreso, fecha_modificacion, estado):
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute(''' 

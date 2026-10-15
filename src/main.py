@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from datos import inicializar_db, guardar_expediente, obtener_usuario
+from datos import inicializar_db, guardar_expediente, obtener_usuario, actualizar_usuario
 from logica import (
     validar_dni, buscar_expediente, ordenar_expedientes, 
     actualizar_expediente, desactivar_expediente, verificar_codigo, 
@@ -59,7 +59,12 @@ class ExpedienteUpdateRequest(BaseModel):
     tramite: str = Field(..., example="Licencia")
     asunto: str = Field(..., example="Renovación de licencia")
     descripcion: str = Field(..., example="Solicito renovación...")
-    progreso: str = Field(..., example="Recibido") # Puede ser Recibido, Confirmado, En Revisión, Atendido luego como cmbbox en frontend
+    progreso: str = Field(..., example="Recibido/ Confirmado/ En Revisión/ Atendido") # Puede ser Recibido, Confirmado, En Revisión, Atendido luego como cmbbox en frontend
+
+class UsuarioUpdatePayload(BaseModel):
+    correo: str = Field(..., example="nuevo_correo@email.com")
+    celular: str = Field(..., example="987654321")
+    direccion: str = Field(..., example="Av. Las Flores 123")
 
 # >>> USUARIOS <<<
 @app.post("/usuarios/", summary="Crear nuevo usuario")
@@ -87,6 +92,28 @@ def r_activar_usuario(username: str, admin_user: str = Depends(dependencia_admin
         raise HTTPException(status_code=404, detail="No se pudo activar el usuario. Verifique que exista y este desactivado.")
     return {"mensaje": "Usuario reactivado exitosamente."}
 
+@app.put("/usuarios/{username}", summary="Actualizar perfil de usuario (Cliente y Admin)")
+def r_actualizar_perfil(username: str, datos: UsuarioUpdatePayload, usuario: str = Depends(dependencia_usuario)):
+    usuario_autenticado = obtener_usuario(usuario)
+    rol_autenticado = usuario_autenticado[3]
+
+    # el cliente solo puede modificar su perfil
+    if rol_autenticado == "cliente" and usuario != username:
+        raise HTTPException(
+            status_code=403, 
+            detail="Acceso denegado. No tienes permisos para actualizar el perfil de otro usuario."
+        )
+    # Valida que el usuario exista
+    if not obtener_usuario(username):
+        raise HTTPException(
+            status_code=404, 
+            detail="El usuario que intenta actualizar no existe en la base de datos."
+        )
+    actualizar_usuario(username, datos.correo, datos.celular, datos.direccion)
+
+    return {
+        "mensaje": f"Perfil del usuario '{username}' actualizado correctamente por {rol_autenticado}."
+    }
 
 # >>> EXPEDIENTES <<<
 @app.post("/expedientes/", summary="Registrar nuevo expediente")
@@ -127,7 +154,7 @@ def r_buscar_texto(palabra_clave: str, usuario: str = Depends(dependencia_usuari
         raise HTTPException(status_code=404, detail="No se encontraron expedientes que contengan ese texto.")
     return {"total_encontrados": len(res), "resultados": res}
 
-@app.get("/expedientes/{codigo}", summary="Generar reporte") #Arreglo paralelo
+@app.get("/expedientes/reportes", summary="Generar reporte") #Arreglo paralelo
 def r_reporte_paralelos(usuario: str = Depends(dependencia_admin)):
     return {"mensaje": "Reporte generado", "data": generar_reporte()}
 
