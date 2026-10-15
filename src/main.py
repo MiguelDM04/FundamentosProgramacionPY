@@ -148,7 +148,7 @@ def r_listar_expedientes(usuario: str = Depends(dependencia_admin)):
     return {"total": len(exp), "expedientes": exp}
 
 @app.get("/expedientes/buscar/texto", summary="Búsqueda de expedientes con texto")
-def r_buscar_texto(palabra_clave: str, usuario: str = Depends(dependencia_usuario)):
+def r_buscar_texto(palabra_clave: str, usuario: str = Depends(dependencia_admin)):
     res = buscar_expediente_texto(palabra_clave)
     if not res: 
         raise HTTPException(status_code=404, detail="No se encontraron expedientes que contengan ese texto.")
@@ -160,10 +160,27 @@ def r_reporte_paralelos(usuario: str = Depends(dependencia_admin)):
 
 @app.get("/expedientes/{codigo}", summary="Consultar expediente por código")
 def r_consultar_expediente(codigo: str, usuario: str = Depends(dependencia_usuario)):
-    res = buscar_expediente(codigo)
-    if not res: 
-        raise HTTPException(status_code=404, detail="Expediente no encontrado o inactivo.")
-    return res
+
+    usuario_autenticado = obtener_usuario(usuario)
+    rol_autenticado = usuario_autenticado[3]
+
+    expediente = buscar_expediente(codigo)
+    if not expediente:#validar que el expediente existe
+        raise HTTPException(
+            status_code=404, 
+            detail="Expediente no encontrado o inactivo."
+        )
+
+    user_usuario = expediente["usuario_username"]
+
+    if rol_autenticado == "cliente" and usuario != user_usuario:#validar que el usuario sea el mismo del expediente
+        raise HTTPException(
+            status_code=403, 
+            detail="Acceso denegado. No tienes permisos para consultar el expediente de otro usuario."
+        )
+
+    return expediente
+
 
 @app.put("/expedientes/{codigo}", summary="Actualizar estado del expediente y contacto")
 def r_actualizar_expediente(codigo: str, exp_upd: ExpedienteUpdateRequest, usuario: str = Depends(dependencia_admin)):
