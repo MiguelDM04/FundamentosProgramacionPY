@@ -68,7 +68,7 @@ class UsuarioUpdatePayload(BaseModel):
 
 # >>> USUARIOS <<<
 @app.post("/usuarios/", summary="Crear nuevo usuario")
-def r_crear_usuario(nuevo_user: UsuarioRequest, admin_user: str = Depends(dependencia_admin)):
+def r_crear_usuario(nuevo_user: UsuarioRequest):
     if not validar_dni(nuevo_user.dni):
         raise HTTPException(status_code=400, detail="DNI de usuario inválido. Debe tener 8 dígitos numéricos.")
     if not crear_usuario(nuevo_user.username, nuevo_user.password, nuevo_user.rol, nuevo_user.dni, nuevo_user.nombreCompleto, nuevo_user.correo, nuevo_user.celular, nuevo_user.direccion):
