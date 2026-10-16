@@ -122,7 +122,7 @@ def generar_reporte():
             array_progresos.append(exp[9])
 
     reporte = []
-    for i in range(len(array_codigos)):#recorre las listas al mismo tiempo para relacionar los datos por posicion
+    for i in range(len(array_codigos)):#recorre las listas para relacionar los datos por indice
         reporte.append({"codigo": array_codigos[i], "nombre": array_nombres[i], "estado_tramite": array_progresos[i]})#agrega a lista de reporte
     return reporte
 

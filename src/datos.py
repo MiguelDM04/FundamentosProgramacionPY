@@ -85,7 +85,7 @@ def leer_usuarios():
     cursor.execute("SELECT id, username, rol, estado, dni, nombreCompleto, correo, celular, direccion FROM usuarios")
     usuarios = cursor.fetchall()
     conexion.close()
-    #Para que fastapi y jinja2 lo lea mejor se convierte a diccionario
+    #Para que fastapi y jinja2 lo lea mejor se convierte a diccionario | arreglo unidimensional
     return [{"id": u[0], "username": u[1], "rol": u[2], "estado": u[3], "dni": u[4], "nombreCompleto": u[5], "correo": u[6], "celular": u[7], "direccion": u[8]} for u in usuarios]
 
 def desactivar_usuario(username):
@@ -135,7 +135,7 @@ def leer_expedientes():
     filas = cursor.fetchall()
     conexion.close()
     # Se convierte los registro de SQLite a listas para poder ordenar | arreglo bidimensional
-    return [list(fila) for fila in filas]#recorre los registros y obtiene una lista de expedientes donde tiene una lista con todo sus datos
+    return [list(fila) for fila in filas]#cada conjunto de datos lo convierte en una lista independiente, osea una lista de listas
 
 
 def actualizar_expediente_db(codigo, tramite, asunto, descripcion, progreso, fecha_modificacion, estado):
