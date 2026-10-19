@@ -1,17 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>{% block title %}Mesa de Partes Digital{% endblock %}</title>
+    
+    <!-- Estilos Globales (Note el uso de css en minúscula) -->
     <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- para que las paginas hijas puedan usar su css propio | Jinja2-->
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    
 
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="navbar-brand">
+            <a href="/inicio" class="brand-link">
+                <img src="{{ url_for('static', path='/img/logo.png') }}" alt="Logo Municipalidad" class="logo-img">
+                <span class="brand-title">Mesa de Partes Digital</span>
+            </a>
+        </div>
+        
+        <nav class="nav-links">
+            <a href="/inicio" class="nav-btn" title="Inicio">
+                <i class="fa-solid fa-house"></i> <span>Inicio</span>
+            </a>
+            <!-- solo se muestra para Administradores (controlado vía JS/sessionStorage) -->
+            <a href="/usuarios" id="nav-usuarios" class="nav-btn admin-only" title="Gestión de Usuarios">
+                <i class="fa-solid fa-users"></i> <span>Usuarios</span>
+            </a>
+            <a href="/expedientes" class="nav-btn" title="Gestión de Expedientes">
+                <i class="fa-solid fa-folder-open"></i> <span>Expedientes</span>
+            </a>
+            <a href="/perfil" class="nav-btn" title="Mi Perfil">
+                <i class="fa-solid fa-user"></i> <span>Profile</span>
+            </a>
+            <button onclick="cerrarSesion()" class="logout-btn" title="Cerrar Sesión">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </nav>
+    </header>
 
-    
+    <!-- Esta pagina es una base para reutilizarla en las demas -->
+    <main class="main-container">
+        {% block content %}
+        <!-- Aquí se pondra el contenido de inicio, expedientes, usuarios o perfil -->
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="{{ url_for('static', path='/img/logo.png') }}" alt="Logo Footer" class="footer-logo">
+                <span>Municipalidad Distrito</span>
+            </div>
+            
+            <div class="footer-socials">
+                <a href="#" class="social-icon" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-icon" title="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-icon" title="Instagram"><i class="fab fa-instagram"></i></a>
+            </div>
+
+            <div class="footer-actions">
+                <button class="theme-btn fa-solid fa-moon" onclick="toggleTheme()"> Cambiar Tema</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Javascript -->
     <script src="{{ url_for('static', path='/js/main.js') }}"></script>
     <script src="{{ url_for('static', path='/js/modals.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+    <!-- para que las paginas hijas puedan usar su js propio | Jinja2-->
 </body>
 </html>
