@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException, Header, Depends
-from pydantic import BaseModel, Field
+from fastapi import FastAPI, HTTPException, Request, Header, Depends
+from pydantic import BaseModel, Field, EmailStr, field_validator
+import re #para regex
 from datetime import datetime
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -9,7 +10,7 @@ from logica import (
     actualizar_expediente, desactivar_expediente, verificar_codigo, 
     activar_expediente, verificar_admin, crear_usuario, 
     listar_usuarios, eliminar_usuario, activar_usuario,
-    buscar_expediente_texto, generar_reporte, generar_codigo
+    buscar_expediente_texto, generar_reporte, generar_codigo, autenticar_usuario
 )
 
 app = FastAPI(
@@ -38,16 +39,39 @@ def dependencia_usuario(x_username: str = Header(..., description="Ingresa tu us
         raise HTTPException(status_code=401, detail="Usuario no válido o no autenticado.")
     return x_username
 
+# Pydantic validacion
+class RegistroClienteRequest(BaseModel):
+    username: str = Field(..., min_length=4, max_length=20)
+    password: str = Field(..., min_length=6)
+    dni: str = Field(..., min_length=8, max_length=8)
+    nombreCompleto: str = Field(..., min_length=3)
+    correo: EmailStr
+    celular: str = Field(..., min_length=9, max_length=9)
+    direccion: str = Field(..., min_length=5)
 
-class UsuarioRequest(BaseModel):
-    username: str = Field(..., example="maria0123")
-    password: str = Field(..., example="claveSegura123")
-    rol: str = Field(..., example="cliente")
-    dni: str = Field(..., example="87654321")
-    nombreCompleto: str = Field(..., example="Maria Lopez")
-    correo: str = Field(..., example="maria@email.com")
-    celular: str = Field(..., example="999888777")
-    direccion: str = Field(..., example="Av. Los Pinos 456")
+    @field_validator('username')
+    def validar_username(cls, v):
+        if not re.match(r'^[a-zA-Z0-9_]+$', v):
+            raise ValueError('El usuario solo debe contener letras, números o guion bajo.')
+        return v
+
+    @field_validator('dni')
+    def validar_dni(cls, v):
+        if not v.isdigit() or len(v) != 8:
+            raise ValueError('El DNI debe tener exactamente 8 dígitos numéricos.')
+        return v
+
+    @field_validator('celular')
+    def validar_celular(cls, v):
+        if not re.match(r'^9\d{8}$', v):
+            raise ValueError('El celular debe empezar con 9 y constar de 9 dígitos.')
+        return v
+
+    @field_validator('nombreCompleto')
+    def validar_nombre(cls, v):
+        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', v):
+            raise ValueError('El nombre completo solo puede contener letras y espacios.')
+        return v.strip()
 
 class ExpedienteRequest(BaseModel):
     # codigo se genera automaticamente
@@ -70,9 +94,48 @@ class UsuarioUpdatePayload(BaseModel):
     celular: str = Field(..., example="987654321")
     direccion: str = Field(..., example="Av. Las Flores 123")
 
+class LoginRequest(BaseModel):
+    username: str = Field(..., example="maria0123")
+    password: str = Field(..., example="claveSegura123")
+
+# >>> FRONTEND <<<
+# Auth endpoints para las pantallas
+@app.get("/", summary="Página de Login/Registro")
+def render_auth(request: Request):
+    return templates.TemplateResponse(request=request, name="auth.html")
+
+@app.get("/inicio", summary="Página de Inicio")
+def render_inicio(request: Request):
+    return templates.TemplateResponse(request=request, name="inicio.html")
+
+# Autenticacion
+@app.post("/login", summary="Validar credenciales de usuario")
+def r_login(credenciales: LoginRequest):
+    user = autenticar_usuario(credenciales.username, credenciales.password)
+    if not user:
+        raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos, o cuenta inactiva.")
+    return {"mensaje": "Login exitoso", "usuario": user}
+
+@app.post("/registro", summary="Registro nuevo cliente")
+def r_registro(nuevo_user: RegistroClienteRequest):   
+    exito = crear_usuario(
+        nuevo_user.username, 
+        nuevo_user.password, 
+        "cliente", 
+        nuevo_user.dni, 
+        nuevo_user.nombreCompleto, 
+        nuevo_user.correo, 
+        nuevo_user.celular, 
+        nuevo_user.direccion
+    )
+    if not exito:
+        raise HTTPException(status_code=400, detail="El nombre de usuario o DNI ya está en uso.")
+        
+    return {"mensaje": f"Usuario {nuevo_user.username} registrado correctamente."}
+
 # >>> USUARIOS <<<
 @app.post("/usuarios/", summary="Crear nuevo usuario")
-def r_crear_usuario(nuevo_user: UsuarioRequest):
+def r_crear_usuario(nuevo_user: RegistroClienteRequest, admin_user: str = Depends(dependencia_admin)):
     if not validar_dni(nuevo_user.dni):
         raise HTTPException(status_code=400, detail="DNI de usuario inválido. Debe tener 8 dígitos numéricos.")
     if not crear_usuario(nuevo_user.username, nuevo_user.password, nuevo_user.rol, nuevo_user.dni, nuevo_user.nombreCompleto, nuevo_user.correo, nuevo_user.celular, nuevo_user.direccion):

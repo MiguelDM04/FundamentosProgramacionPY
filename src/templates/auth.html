@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesa de partes</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/auth.css') }}"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<div class="container" id="container">
+    
+    <!-- Registro -->
+    <div class="form-container sign-up-container">
+        <form id="registroForm" onsubmit="procesarRegistro(event)">
+            <h1>Crear Cuenta</h1>
+            <span>Ingresa tus datos para registrarte</span>
+            
+            <div class="input-field">
+                <input type="text" id="reg_username" minlength="4" maxlength="20" pattern="^[a-zA-Z0-9_]+$" title="Solo letras, números y guión bajo (min 3 caracteres)" placeholder=" " required/>
+                <label>Usuario</label>
+            </div>
+            <div class="input-field">
+                <input type="password" id="reg_password" minlength="5" placeholder=" " required />
+                <label>Contraseña</label>
+            </div>
+            <div class="input-field">
+                <input type="text" id="reg_dni" minlength="8" maxlength="8" pattern="[0-9]{8}" inputmode="numeric" title="El DNI debe tener 8 numeros" placeholder=" " required />
+                <label>DNI</label>
+            </div>
+            <div class="input-field">
+                <input type="text" id="reg_nombreCompleto" minlength="3" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" title="Solo se permiten letras y espacios" placeholder=" " required />
+                <label>Nombre Completo</label>
+            </div>
+            <div class="input-field">
+                <input type="email" id="reg_correo" placeholder=" " required/>
+                <label>Correo Electrónico</label>
+            </div>
+            <div class="input-field">
+                <input type="tel" id="reg_celular" minlength="9" maxlength="9" pattern="9[0-9]{8}" inputmode="numeric" title="El celular debe empezar con 9 y tener 9 dígitos" placeholder=" " required />
+                <label>Celular</label>
+            </div>
+            <div class="input-field">
+                <input type="text" id="reg_direccion" minlength="5" placeholder=" " required />
+                <label>Dirección</label>
+            </div>
+            <button type="submit">Registrarse</button>
+        </form>
+    </div>
+
+    <!-- INICIO DE SESIÓN -->
+    <div class="form-container sign-in-container">
+        <form id="loginForm" onsubmit="procesarLogin(event)">
+            <h1>Iniciar Sesión</h1>      
+            <span class="separar">Accede con tus credenciales</span>
+            
+            <div class="input-field">
+                <input type="text" id="login_username" placeholder=" " required/>
+                <label>Usuario</label>
+            </div>
+            <div class="input-field">
+                <input type="password" id="login_password" placeholder=" " required/>
+                <label>Contraseña</label>
+            </div>
+            <button type="submit">Ingresar</button>
+        </form>
+    </div>
+
+    <div class="overlay-container">
+        <div class="overlay">
+            <div class="overlay-panel overlay-left">
+                <h1>¡Bienvenido!</h1>
+                <p>Para ingresar a tu cuenta, haz clic aquí</p>
+                <button class="ghost" id="inicioSesion">Iniciar Sesión</button>
+            </div>
+            <div class="overlay-panel overlay-right">
+                <h1>¡Hola, Ciudadano!</h1>
+                <p>Si no tienes una cuenta, regístrate aquí</p>
+                <button class="ghost" id="registro">Registrarse</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p><button class="theme-btn fa-solid fa-moon" onclick="toggleTheme()"> Cambiar Tema</button></p>
+</footer>
+
+<script src="{{ url_for('static', path='/js/auth.js') }}"></script>
+</body>
+</html>

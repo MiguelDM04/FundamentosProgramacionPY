@@ -22,7 +22,7 @@ def inicializar_db():
         password TEXT NOT NULL, 
         rol TEXT NOT NULL,
         estado TEXT NOT NULL,
-        dni TEXT NOT NULL,
+        dni TEXT UNIQUE NOT NULL,
         nombreCompleto TEXT NOT NULL,
         correo TEXT NOT NULL,
         celular TEXT NOT NULL,
