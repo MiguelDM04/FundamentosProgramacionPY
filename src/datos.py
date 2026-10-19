@@ -135,7 +135,7 @@ def leer_expedientes():
     filas = cursor.fetchall()
     conexion.close()
     # Se convierte los registro de SQLite a listas para poder ordenar | arreglo bidimensional
-    return [list(fila) for fila in filas]#cada conjunto de datos lo convierte en una lista independiente, osea una lista de listas
+    return [list(fila) for fila in filas]#cada conjunto de datos lo convierte en una lista independi    ente, osea una lista de listas
 
 
 def actualizar_expediente_db(codigo, tramite, asunto, descripcion, progreso, fecha_modificacion, estado):

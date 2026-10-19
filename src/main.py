@@ -15,13 +15,17 @@ from logica import (
 app = FastAPI(
     title="Mesa de Partes Digital",
     description="API con BD relacional desarrollada para avance desafio de Fundamentos de Programacion - Semana 09 - Grupo 01",
-    version="1.1.1"
+    version="2.0"
 )
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+templates = Jinja2Templates(directory="templates") 
+
 
 # Inicializa la BD al ejecutar el server
 inicializar_db()
 
-#templates = Jinja2Templates(directory="templates") #luego de confirmar que este correcto el backend
 
 # >>> SEGURIDAD <<<
 def dependencia_admin(x_admin: str = Header(..., description="Ingresa tu usuario")):
