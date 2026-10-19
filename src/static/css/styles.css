@@ -37,7 +37,130 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* NAVBAR / HEADER */
+/* Inicio */
+.inicio-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 40px;
+    margin-top: 30px;
+}
+
+.inicio-imagen-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    padding: 30px;
+    border-radius: 12px;
+}
+
+.inicio-img {
+    max-width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+}
+
+.inicio-contenido {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.welcome-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.welcome-header h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+/* Badges de Rol */
+.badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-cliente {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-admin {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* Cajas de Descripción */
+.descripcion-box h3 {
+    font-size: 1.2rem;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+}
+
+.descripcion-box p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 25px;
+}
+
+/* Botones de Acción */
+.inicio-acciones {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-third);
+    transform: translateY(-2px);
+}
+
+/* Navbar */
 .navbar {
     background-color: var(--bg-primary);
     border-bottom: 1px solid var(--border-color);
@@ -169,4 +292,76 @@ body {
     cursor: pointer;
     font-weight: 600;
     font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+    .inicio-card {
+        flex-direction: column;
+        padding: 20px;
+        gap: 20px;
+    }
+
+    .inicio-contenido {
+        text-align: center;
+    }
+
+    .welcome-header {
+        align-items: center;
+    }
+
+    .inicio-acciones {
+        justify-content: center;
+    }
+
+    .navbar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 15px;
+    }
+
+    .navbar-brand .brand-link {
+        justify-content: center;
+    }
+
+    .brand-title {
+        font-size: 1rem;
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .nav-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .logout-btn {
+        padding: 8px 12px;
+    }
+
+    /* Contenedor principal */
+    .main-container {
+        padding: 0 12px;
+        margin: 15px auto;
+    }
+
+    /* Footer en columna */
+    .footer {
+        padding: 20px 15px;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .footer-brand {
+        flex-direction: column;
+        gap: 5px;
+    }
 }

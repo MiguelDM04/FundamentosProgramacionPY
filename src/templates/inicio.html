@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block title %}Inicio - Mesa de Partes Digital{% endblock %}
+
+{% block content %}
+<section class="inicio-card">
+    <!-- Columna Izquierda: Imagen / Ilustración -->
+    <div class="inicio-imagen-container">
+        <img src="{{ url_for('static', path='/img/logo.png') }}" alt="Mesa de Partes Digital" class="inicio-img">
+    </div>
+
+    <!-- Columna Derecha: Texto Descriptivo según Rol -->
+    <div class="inicio-contenido">
+        <div class="welcome-header"><!-- Muestra el rol del usuario-->
+            <span id="rol-badge" class="badge">Cargando...</span>
+            <h2>¡Hola, <span id="nombre-usuario">Ciudadano</span>!</h2>
+        </div>
+
+        <!-- Descripcion si eres Cliente -->
+        <div id="descripcion-cliente" class="descripcion-box" style="display: none;">
+            <h3>Mesa de Partes Digital - Atención al Ciudadano</h3>
+            <p>
+                Bienvenido a la plataforma digital de la municipalidad. En cumplimiento de la 
+                <strong>Ley N.° 31170</strong>, este sistema te permite registrar solicitudes, presentar documentos 
+                y dar seguimiento en tiempo real al estado de tus tramites usando tu codigo de expediente.
+            </p>
+            <div class="inicio-acciones">
+                <a href="/expedientes" class="btn-primary">
+                    <i class="fa-solid fa-folder-plus"></i> Mis Expedientes
+                </a>
+                <a href="/perfil" class="btn-secondary">
+                    <i class="fa-solid fa-user-gear"></i> Actualizar Perfil
+                </a>
+            </div>
+        </div>
+
+        <!-- Descripcion si eres Administrador -->
+        <div id="descripcion-admin" class="descripcion-box" style="display: none;"><!-- Aqui hace que no se muestra hasta que se sepa el rol en el inicio.js-->
+            <h3>Panel de Control Operativo - Administración</h3>
+            <p>
+                Bienvenido al modulo de gestion de la Mesa de Partes Digital. Desde esta interfaz 
+                puedes revisar el listado ordenado de tramites, actualizar el progreso de los expedientes, 
+                gestionar cuentas de usuarios y generar reportes.
+            </p>
+            <div class="inicio-acciones">
+                <a href="/expedientes" class="btn-primary">
+                    <i class="fa-solid fa-list-check"></i> Gestionar Expedientes
+                </a>
+                <a href="/usuarios" class="btn-secondary">
+                    <i class="fa-solid fa-users"></i> Administrar Usuarios
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Importación externa de inicio.js -->
+<script src="{{ url_for('static', path='/js/inicio.js') }}"></script>
+{% endblock %}
