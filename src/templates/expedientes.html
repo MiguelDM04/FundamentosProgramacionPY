@@ -20,14 +20,14 @@
             <i class="fa-solid fa-plus"></i> Nuevo Tramite
         </button>
         
-        <!-- Boton de Reportes (Solo Admin) - Asegúrate de que esté aquí -->
+        <!-- Reportes  -->
         <button id="btn-reporte" class="btn-action btn-report admin-only" onclick="cargarReporte()" style="display: none;">
             <i class="fa-solid fa-chart-pie"></i> Ver Reporte
         </button>
     </div>
 </div>
 
-<!-- switch (Solo Admin) -->
+<!-- switch (Admin) -->
 <div class="filtros-secundarios admin-only" style="display: none; margin-bottom: 15px; justify-content: flex-end;">
     <label class="switch-container">
         <span class="switch-label">Ver expedientes inactivos</span>
@@ -119,8 +119,16 @@
             </div>
 
             <div class="input-field">
-                <label>Tramite</label>
-                <input type="text" id="edit_tramite" required />
+                <label>Tipo de Tramite</label>
+                <select id="edit_tramite" class="custom-select" required>
+                    <option value="" disabled selected>Seleccione una opcion...</option>
+                    <option value="Licencia de Funcionamiento">Licencia de Funcionamiento</option>
+                    <option value="Licencia de Edificacion">Licencia de Edificacion</option>
+                    <option value="Subvencion Economica">Subvencion Economica</option>
+                    <option value="Queja o Denuncia">Queja o Denuncia</option>
+                    <option value="Solicitud de Acceso a la Informacion">Solicitud de Acceso a la Informacion</option>
+                    <option value="Tramite General">Tramite General</option>
+                </select>
             </div>
 
             <div class="input-field">
