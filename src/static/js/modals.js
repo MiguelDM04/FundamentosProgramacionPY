@@ -65,7 +65,7 @@ async function procesarEdicion(e) {
         correo: document.getElementById('edit_correo').value.trim(),
         celular: document.getElementById('edit_celular').value.trim(),
         direccion: document.getElementById('edit_direccion').value.trim(),
-        tramite: document.getElementById('edit_tramite').value,
+        tramite: document.getElementById('edit_tramite').value.trim(),
         asunto: document.getElementById('edit_asunto').value.trim(),
         descripcion: document.getElementById('edit_descripcion').value.trim(),
         progreso: document.getElementById('edit_progreso').value

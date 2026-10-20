@@ -443,7 +443,7 @@ input:checked + .slider:before {
 
 .data-table th, .data-table td {
     padding: 14px 18px;
-    border-bottom: 1px solid var(--border-color);
+    
 }
 
 .data-table th {
@@ -471,13 +471,13 @@ input:checked + .slider:before {
 .badge-atendido { background-color: #d1fae5; color: #047857; }
 
 /* Botones de accion en tabla */
-/* Alineación de celdas de acción en la tabla */
-/* Corrección para la celda de Acciones en la tabla */
 .action-cells {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
+    justify-content: center; 
+    align-items: center;     
+    gap: 8px; 
+    width: 100%;             
+    min-height: 40px;        
 }
 
 .action-cells span {
@@ -490,7 +490,6 @@ input:checked + .slider:before {
     border: 1px solid var(--border-color);
 }
 
-/* Botones temáticos compactos para que entren perfecto en la tabla */
 .btn-thematic {
     border: none;
     padding: 6px 10px;
@@ -500,6 +499,7 @@ input:checked + .slider:before {
     cursor: pointer;
     display: inline-flex;
     align-items: center;
+    justify-content: center; 
     gap: 4px;
     transition: 0.2s;
 }

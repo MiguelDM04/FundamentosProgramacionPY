@@ -27,16 +27,16 @@ async function cargarTablaExpedientes() {
             const data = await resp.json();
             renderizarTabla(data.expedientes, tbody, rol);
         } else {
-            tbody.innerHTML = `<tr><td colspan="7" class="error-cell">Error al obtener expedientes.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="error-cell">Error al obtener expedientes.</td></tr>`;
         }
     } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="7" class="error-cell">Error de conexión.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="error-cell">Error de conexión.</td></tr>`;
     }
 }
 
 function renderizarTabla(lista, tbody, rol) {
     if (!lista || lista.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="empty-cell">No hay expedientes para mostrar.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="empty-cell">No hay expedientes para mostrar.</td></tr>`;
         return;
     }
 
@@ -47,6 +47,7 @@ function renderizarTabla(lista, tbody, rol) {
         const tramite = exp[6];
         const asunto = exp[7];
         const progreso = exp[9];
+        const fechaM = exp[11]
         const activo = (exp[12] === "True");
 
         let classProgreso = 'badge-recibido';
@@ -63,7 +64,7 @@ function renderizarTabla(lista, tbody, rol) {
             if (activo) {
                 accionesHtml = `
                     <button class="btn-thematic btn-edit" title="Editar" onclick="prepararEdicion('${codigo}')">
-                        <i class="fa-solid fa-pen"></i> Editar
+                        <i class="fa-solid fa-pen"></i>
                     </button>
                     <button class="btn-thematic btn-delete" title="Desactivar" onclick="desactivarExpediente('${codigo}')">
                         <i class="fa-solid fa-trash"></i>
@@ -88,6 +89,7 @@ function renderizarTabla(lista, tbody, rol) {
                 <td class="col-filtro">${asunto}</td>
                 <td><span class="badge-progreso ${classProgreso}">${progreso}</span></td>
                 <td>${badgeActivo}</td>
+                <td>${fechaM}</td>
                 <td class="action-cells">${accionesHtml}</td>
             </tr>
         `;
