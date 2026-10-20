@@ -112,7 +112,7 @@ body {
 /* container principal */
 .main-container {
     flex: 1;
-    max-width: 1200px;
+    max-width: 1350px;
     width: 100%;
     margin: 20px auto;
     padding: 0 20px;
