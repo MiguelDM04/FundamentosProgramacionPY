@@ -4,13 +4,13 @@ import re #para regex
 from datetime import datetime
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from datos import inicializar_db, guardar_expediente, obtener_usuario, actualizar_usuario
+from datos import inicializar_db, guardar_expediente, obtener_usuario, actualizar_perfil, actualizar_usuario
 from logica import (
     validar_dni, buscar_expediente, ordenar_expedientes, 
     actualizar_expediente, desactivar_expediente, verificar_codigo, 
     activar_expediente, verificar_admin, crear_usuario, 
     listar_usuarios, eliminar_usuario, activar_usuario,
-    buscar_expediente_texto, generar_reporte, generar_codigo, autenticar_usuario
+    buscar_expediente_texto, generar_reporte, generar_codigo, autenticar_usuario, buscar_usuario
 )
 
 app = FastAPI(
@@ -43,6 +43,7 @@ def dependencia_usuario(x_username: str = Header(..., description="Ingresa tu us
 class RegistroClienteRequest(BaseModel):
     username: str = Field(..., min_length=4, max_length=20)
     password: str = Field(..., min_length=6)
+    rol: str = Field(default="cliente", example="cliente o admin") # Valor por defecto 'cliente'
     dni: str = Field(..., min_length=8, max_length=8)
     nombreCompleto: str = Field(..., min_length=3)
     correo: EmailStr
@@ -89,10 +90,18 @@ class ExpedienteUpdateRequest(BaseModel):
     descripcion: str = Field(..., example="Solicito renovación...")
     progreso: str = Field(..., example="Recibido/ Confirmado/ En Revisión/ Atendido") # Puede ser Recibido, Confirmado, En Revisión, Atendido luego como cmbbox en frontend
 
-class UsuarioUpdatePayload(BaseModel):
+class PerfilUpdatePayload(BaseModel):
     correo: str = Field(..., example="nuevo_correo@email.com")
     celular: str = Field(..., example="987654321")
     direccion: str = Field(..., example="Av. Las Flores 123")
+
+class UsuarioUpdateRequest(BaseModel):
+    rol: str = Field(..., example="cliente")
+    dni: str = Field(..., min_length=8, max_length=8)
+    nombreCompleto: str = Field(..., min_length=3)
+    correo: EmailStr = Field(..., example="nuevo_correo@email.com")
+    celular: str = Field(..., min_length=9, max_length=9)
+    direccion: str = Field(..., example="Av. Las Flores 123")  
 
 class LoginRequest(BaseModel):
     username: str = Field(..., example="maria0123")
@@ -112,6 +121,10 @@ def render_inicio(request: Request):
 def render_expedientes(request: Request):
     return templates.TemplateResponse(request=request, name="expedientes.html")
 
+@app.get("/usuarios", summary="Gestión de Usuarios")
+def render_usuarios(request: Request):
+    return templates.TemplateResponse(request=request, name="usuarios.html")
+
 @app.get("/expedientes/reportes", summary="Generar reporte consolidado usando arreglos paralelos")
 def r_reporte_expedientes(usuario: str = Depends(dependencia_admin)):
     reporte_data = generar_reporte() # Llama directamente a la función existente en logica.py
@@ -121,14 +134,14 @@ def r_reporte_expedientes(usuario: str = Depends(dependencia_admin)):
     }
 
 # Autenticacion
-@app.post("/login", summary="Validar credenciales de usuario")
+@app.post("/login", summary="Validar usuario")
 def r_login(credenciales: LoginRequest):
     user = autenticar_usuario(credenciales.username, credenciales.password)
     if not user:
         raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos, o cuenta inactiva.")
     return {"mensaje": "Login exitoso", "usuario": user}
 
-@app.post("/registro", summary="Registro nuevo cliente")
+@app.post("/registro", summary="Registro cliente")
 def r_registro(nuevo_user: RegistroClienteRequest):   
     exito = crear_usuario(
         nuevo_user.username, 
@@ -146,18 +159,44 @@ def r_registro(nuevo_user: RegistroClienteRequest):
     return {"mensaje": f"Usuario {nuevo_user.username} registrado correctamente."}
 
 # >>> USUARIOS <<<
-@app.post("/usuarios/", summary="Crear nuevo usuario")
+@app.post("/usuarios/", summary="Crear nuevo usuario (Exclusivo Administrador)")
 def r_crear_usuario(nuevo_user: RegistroClienteRequest, admin_user: str = Depends(dependencia_admin)):
     if not validar_dni(nuevo_user.dni):
         raise HTTPException(status_code=400, detail="DNI de usuario inválido. Debe tener 8 dígitos numéricos.")
-    if not crear_usuario(nuevo_user.username, nuevo_user.password, nuevo_user.rol, nuevo_user.dni, nuevo_user.nombreCompleto, nuevo_user.correo, nuevo_user.celular, nuevo_user.direccion):
-        raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso.")
-    return {"mensaje": f"Usuario {nuevo_user.username} creado correctamente."}
+    
+    # Aquí se respeta el rol que el administrador haya seleccionado en el formulario (cliente o admin)
+    exito = crear_usuario(
+        nuevo_user.username, 
+        nuevo_user.password, 
+        nuevo_user.rol, 
+        nuevo_user.dni, 
+        nuevo_user.nombreCompleto, 
+        nuevo_user.correo, 
+        nuevo_user.celular, 
+        nuevo_user.direccion
+    )
+    
+    if not exito:
+        raise HTTPException(status_code=400, detail="El nombre de usuario o DNI ya está en uso.")
+        
+    return {"mensaje": f"Usuario {nuevo_user.username} creado correctamente con rol '{nuevo_user.rol}'."}
 
 @app.get("/usuarios/", summary="Ver lista de usuarios")
-def r_obtener_usuarios(admin_user: str = Depends(dependencia_admin)):
-    usuarios = listar_usuarios()
+def r_obtener_usuarios(estado: str = "activos", admin_user: str = Depends(dependencia_admin)):
+    incluir_inactivos = (estado == "todos")
+    usuarios = listar_usuarios(incluir_inactivos)
     return {"total": len(usuarios), "usuarios": usuarios}
+
+@app.get("/usuarios/{username}", summary="Consultar usuario por username")
+def r_consultar_usuario(username: str, admin_user: str = Depends(dependencia_admin)):
+    # Validamos que el usuario exista
+    usuario_encontrado = buscar_usuario(username)
+    if not usuario_encontrado:
+        raise HTTPException(
+            status_code=404, 
+            detail="Usuario no encontrado."
+        )
+    return usuario_encontrado
 
 @app.delete("/usuarios/{username}", summary="Desactivar usuario")
 def r_eliminar_usuario(username: str, admin_user: str = Depends(dependencia_admin)):
@@ -171,8 +210,8 @@ def r_activar_usuario(username: str, admin_user: str = Depends(dependencia_admin
         raise HTTPException(status_code=404, detail="No se pudo activar el usuario. Verifique que exista y este desactivado.")
     return {"mensaje": "Usuario reactivado exitosamente."}
 
-@app.put("/usuarios/{username}", summary="Actualizar perfil de usuario (Cliente y Admin)")
-def r_actualizar_perfil(username: str, datos: UsuarioUpdatePayload, usuario: str = Depends(dependencia_usuario)):
+@app.put("/perfil/{username}", summary="Actualizar perfil de usuario (Cliente y Admin)")
+def r_actualizar_perfil(username: str, datos: PerfilUpdatePayload, usuario: str = Depends(dependencia_usuario)):
     usuario_autenticado = obtener_usuario(usuario)
     rol_autenticado = usuario_autenticado[3]
 
@@ -188,11 +227,36 @@ def r_actualizar_perfil(username: str, datos: UsuarioUpdatePayload, usuario: str
             status_code=404, 
             detail="El usuario que intenta actualizar no existe en la base de datos."
         )
-    actualizar_usuario(username, datos.correo, datos.celular, datos.direccion)
+    actualizar_perfil(username, datos.correo, datos.celular, datos.direccion)
 
     return {
         "mensaje": f"Perfil del usuario '{username}' actualizado correctamente por {rol_autenticado}."
     }
+
+@app.put("/expedientes/{codigo}", summary="Actualizar estado del expediente o contacto")
+def r_actualizar_expediente(codigo: str, exp_upd: ExpedienteUpdateRequest, usuario: str = Depends(dependencia_admin)):
+    exito = actualizar_expediente(codigo, exp_upd.correo, exp_upd.celular, exp_upd.direccion, exp_upd.tramite, exp_upd.asunto, exp_upd.descripcion, exp_upd.progreso)
+    if not exito:
+        raise HTTPException(status_code=404, detail="Expediente no existe o está inactivo.")
+    return {"mensaje": f"Expediente {codigo} actualizado y notificado a los datos de contacto."}
+
+@app.put("/usuarios/{username}", summary="Actualizar usuario (Admin)")
+def r_actualizar_usuario(username: str, datos: UsuarioUpdateRequest, admin_user: str = Depends(dependencia_admin)):
+    # Validar que el usuario exista primero
+    if not obtener_usuario(username):
+        raise HTTPException(status_code=404, detail="El usuario no existe.")
+        
+    actualizar_usuario(
+        username, 
+        datos.rol, 
+        datos.dni, 
+        datos.nombreCompleto, 
+        datos.correo, 
+        datos.celular, 
+        datos.direccion
+    )
+    
+    return {"mensaje": f"Usuario '{username}' actualizado correctamente."}
 
 # >>> EXPEDIENTES <<<
 @app.post("/expedientes/", summary="Registrar nuevo expediente")
@@ -266,12 +330,7 @@ def r_consultar_expediente(codigo: str, usuario: str = Depends(dependencia_usuar
     return expediente
 
 
-@app.put("/expedientes/{codigo}", summary="Actualizar estado del expediente y contacto")
-def r_actualizar_expediente(codigo: str, exp_upd: ExpedienteUpdateRequest, usuario: str = Depends(dependencia_admin)):
-    exito = actualizar_expediente(codigo, exp_upd.correo, exp_upd.celular, exp_upd.direccion, exp_upd.tramite, exp_upd.asunto, exp_upd.descripcion, exp_upd.progreso)
-    if not exito:
-        raise HTTPException(status_code=404, detail="Expediente no existe o está inactivo.")
-    return {"mensaje": f"Expediente {codigo} actualizado y notificado a los datos de contacto."}
+
 
 @app.delete("/expedientes/{codigo}", summary="Desactivar expediente")
 def r_eliminar_expediente(codigo: str, usuario: str = Depends(dependencia_admin)):

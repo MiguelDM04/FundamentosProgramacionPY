@@ -103,12 +103,23 @@ def activar_usuario_db(username):
     conexion.close()
 
 #En caso el cliente cambia de correo, celular o direccion lo puede actualizar en su perfil
-def actualizar_usuario(username, correo, celular, direccion):
+def actualizar_perfil(username, correo, celular, direccion):
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("UPDATE usuarios SET correo = ?, celular = ?, direccion = ? WHERE username = ?", (correo, celular, direccion, username))
     conexion.commit()
     conexion.close()  
+
+def actualizar_usuario(username, rol, dni, nombreCompleto, correo, celular, direccion):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute('''
+        UPDATE usuarios 
+        SET rol = ?, dni = ?, nombreCompleto = ?, correo = ?, celular = ?, direccion = ? 
+        WHERE username = ?
+    ''', (rol, dni, nombreCompleto, correo, celular, direccion, username))
+    conexion.commit()
+    conexion.close()
 
 
 # >>>> CRUD expedientes <<<<

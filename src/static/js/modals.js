@@ -123,3 +123,67 @@ async function cargarReporte() {
         alert("Error de conexión.");
     }
 }
+
+// --- modal actualizar usuario ---
+async function prepararEdicionUsuario(username) {
+    try {
+        const resp = await fetch(`/usuarios/${username}`, {
+            headers: getAuthHeaders()
+        });
+
+        if (resp.ok) {
+            const data = await resp.json();
+            
+            // Verificamos que los IDs coincidan exactamente con tu HTML
+            document.getElementById('edit_usr_username').value = data.username;
+            document.getElementById('edit_usr_rol').value = data.rol;
+            document.getElementById('edit_usr_nombre').value = data.nombreCompleto;
+            document.getElementById('edit_usr_dni').value = data.dni;
+            document.getElementById('edit_usr_correo').value = data.correo;
+            document.getElementById('edit_usr_celular').value = data.celular;
+            document.getElementById('edit_usr_direccion').value = data.direccion;
+
+            abrirModal('modal-editar-usuario');
+        } else {
+            const err = await resp.json();
+            alert(err.detail || "No se pudieron cargar los datos del usuario.");
+        }
+    } catch (error) {
+        alert("Error de conexión al cargar el usuario.");
+    }
+}
+
+async function procesarEdicionUsuario(e) {
+    e.preventDefault();
+    const username = document.getElementById('edit_usr_username').value;
+
+    const payload = {
+        rol: document.getElementById('edit_usr_rol').value,
+        nombreCompleto: document.getElementById('edit_usr_nombre').value.trim(),
+        dni: document.getElementById('edit_usr_dni').value.trim(),
+        correo: document.getElementById('edit_usr_correo').value.trim(),
+        celular: document.getElementById('edit_usr_celular').value.trim(),
+        direccion: document.getElementById('edit_usr_direccion').value.trim()
+    };
+
+    try {
+        const resp = await fetch(`/usuarios/${username}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(payload)
+        });
+
+        if (resp.ok) {
+            alert(`¡Datos del usuario ${username} actualizados correctamente!`);
+            cerrarModal('modal-editar-usuario');
+            if (typeof cargarTablaUsuarios === 'function') {
+                cargarTablaUsuarios();
+            }
+        } else {
+            const err = await resp.json();
+            alert(err.detail || "Error al actualizar el usuario.");
+        }
+    } catch (error) {
+        alert("Error al conectar con el servidor.");
+    }
+}

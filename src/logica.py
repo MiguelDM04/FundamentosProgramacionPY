@@ -3,7 +3,7 @@ from datetime import datetime
 from datos import (
     leer_expedientes, guardar_expediente, actualizar_expediente_db, obtener_usuario,
     guardar_usuario, leer_usuarios, desactivar_usuario, activar_usuario_db, 
-    actualizar_usuario, obtener_ultimo_codigo
+    actualizar_perfil, obtener_ultimo_codigo, actualizar_usuario
 )
 
 # >>> USUARIO <<<
@@ -27,8 +27,13 @@ def crear_usuario(username, password, rol, dni, nombreCompleto, correo, celular,
     guardar_usuario(username, cifrar_password(password), rol, dni, nombreCompleto, correo, celular, direccion, "True")
     return True
 
-def listar_usuarios():
-    return leer_usuarios()
+def listar_usuarios(incluir_inactivos=False):
+    todos = leer_usuarios()
+    if incluir_inactivos:
+        return todos
+    else:
+        # Filtra que el estado sea activo
+        return [u for u in todos if u["estado"] == "True"]
 
 def eliminar_usuario(username, username_admin):
     if username == username_admin:#se valida que el admin no se elimine a si mismo por seguridad
@@ -70,6 +75,25 @@ def verificar_codigo(codigo):
         if exp[0].upper() == codigo.upper():
             return True
     return False
+
+def buscar_usuario(username):
+    """Buscar un usuario específico y retornarlo como diccionario"""
+    u = obtener_usuario(username)
+    # Verificamos que el usuario exista y esté activo (estado == "True")
+    if u and u[4] == "True":
+        return {
+            "id": u[0], 
+            "username": u[1], 
+            "password": u[2], 
+            "rol": u[3], 
+            "estado": u[4], 
+            "dni": u[5], 
+            "nombreCompleto": u[6], 
+            "correo": u[7], 
+            "celular": u[8], 
+            "direccion": u[9]
+        }
+    return None
 
 def buscar_expediente(codigo):
     """Busca expedientes activos segun su codigo"""
@@ -138,7 +162,7 @@ def actualizar_expediente(codigo, correo, celular, direccion, tramite, asunto, d
     if exp:
         fecha_mod = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         username = exp["usuario_username"]
-        actualizar_usuario(username, correo, celular, direccion)
+        actualizar_perfil(username, correo, celular, direccion)
         actualizar_expediente_db(codigo, tramite, asunto, descripcion, progreso, fecha_mod, "True")
         return True
     return False

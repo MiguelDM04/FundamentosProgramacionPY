@@ -1,0 +1,168 @@
+{% extends "layout.html" %}
+
+{% block title %}Usuarios - Mesa de Partes Digital{% endblock %}
+
+{% block content %}
+<div class="expedientes-header">
+    <div class="header-titles">
+        <h2><i class="fa-solid fa-users"></i> Gestión de Usuarios</h2>
+        <p class="subtitle">Administra los accesos, roles y datos de contacto</p>
+    </div>
+    
+    <div class="header-actions">
+        <!-- buscador -->
+        <div class="search-box-inline">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="filtro-usuarios" onkeyup="filtrarTablaUsuarios()" placeholder="Buscar por usuario, nombre, DNI...">
+        </div>
+        
+        <button class="btn-action btn-add admin-only" onclick="abrirModal('modal-nuevo-usuario')">
+            <i class="fa-solid fa-user-plus"></i> Nuevo Usuario
+        </button>
+    </div>
+</div>
+
+<!-- switch inactivos -->
+<div class="filtros-secundarios admin-only" style="margin-bottom: 15px; justify-content: flex-end;">
+    <label class="switch-container">
+        <span class="switch-label">Ver usuarios inactivos</span>
+        <label class="switch">
+            <input type="checkbox" id="switch-inactivos-usuarios" onchange="cargarTablaUsuarios()">
+            <span class="slider round"></span>
+        </label>
+    </label>
+</div>
+
+<!-- tabla usuarios -->
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Nombre Completo</th>
+                <th>DNI</th>
+                <th>Rol</th>
+                <th>Correo</th>
+                <th>Estado</th>
+                <th style="text-align: center;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-usuarios-body">
+            <tr>
+                <td colspan="7" class="loading-cell">Cargando usuarios...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- modal nuevo usuario -->
+<div id="modal-nuevo-usuario" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="cerrarModal('modal-nuevo-usuario')">&times;</span>
+        <h3><i class="fa-solid fa-user-plus"></i> Registrar Nuevo Usuario</h3>
+        <br>
+        <form id="form-nuevo-usuario" onsubmit="guardarNuevoUsuario(event)">
+            
+            <div class="input-field">
+                <label>Nombre de Usuario</label>
+                <input type="text" id="usr_username" minlength="4" maxlength="20" pattern="^[a-zA-Z0-9_]+$" title="Solo letras, números y guión bajo (min 3 caracteres)" placeholder=" " required/>
+            </div>
+
+            <div class="input-field">
+                <label>Contraseña</label>
+                <input type="password" id="usr_password" minlength="5" title="Minimo 6 letras, numeros o simbolos" placeholder=" " required />
+            </div>
+
+            <div class="input-field">
+                <label>Rol en el Sistema</label>
+                <select id="usr_rol" class="custom-select" required>
+                    <option value="" disabled selected>Seleccione un rol...</option>
+                    <option value="cliente">Cliente</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            
+            <hr class="divider">
+            <p class="section-subtitle">Datos Personales</p>
+
+            <div class="input-field">
+                <label>DNI</label>
+                <input type="text" id="usr_dni" minlength="8" maxlength="8" pattern="[0-9]{8}" inputmode="numeric" title="El DNI debe tener 8 numeros" placeholder=" " required />               
+            </div>
+            <div class="input-field">
+                <label>Nombre Completo</label>
+                <input type="text" id="usr_nombre" minlength="3" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" title="Solo se permiten letras y espacios" placeholder=" " required />             
+            </div>
+            <div class="input-field">
+                <label>Correo Electrónico</label>
+                <input type="email" id="usr_correo" placeholder=" " required/>                
+            </div>
+            <div class="input-field">
+                <label>Celular</label>
+                <input type="tel" id="usr_celular" minlength="9" maxlength="9" pattern="9[0-9]{8}" inputmode="numeric" title="El celular debe empezar con 9 y tener 9 dígitos" placeholder=" " required />
+            </div>
+            <div class="input-field">
+                <label>Dirección</label>
+                <input type="text" id="usr_direccion" minlength="5" placeholder=" " required />
+            </div>
+
+            <button type="submit" class="btn-primary w-100 m-top-15">Guardar Usuario</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL EDITAR USUARIO -->
+<div id="modal-editar-usuario" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="cerrarModal('modal-editar-usuario')">&times;</span>
+        <h3><i class="fa-solid fa-user-pen"></i> Actualizar Usuario</h3>
+        <p class="subtitle m-bottom-10">Modifica los datos del usuario.</p>
+        
+        <form id="form-editar-usuario" onsubmit="procesarEdicionUsuario(event)">
+            <!-- Input oculto clave -->
+            <input type="hidden" id="edit_usr_username" />
+            
+            <div class="input-field">
+                <label>Rol en el Sistema</label>
+                <select id="edit_usr_rol" class="custom-select" required>
+                    <option value="" disabled selected>Seleccione un rol...</option>
+                    <option value="cliente">Cliente</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            
+            <div class="input-field">
+                <label>Nombre Completo</label>
+                <input type="text" id="edit_usr_nombre" minlength="3" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" title="Solo se permiten letras y espacios" required />
+            </div>
+
+            <div class="input-field">
+                <label>DNI</label>
+                <input type="text" id="edit_usr_dni" minlength="8" maxlength="8" pattern="[0-9]{8}" inputmode="numeric" required />
+            </div>
+
+            <div class="input-field">
+                <label>Correo Electrónico</label>
+                <input type="email" id="edit_usr_correo" required />
+            </div>
+
+            <div class="input-field">
+                <label>Celular</label>
+                <input type="tel" id="edit_usr_celular" minlength="9" maxlength="9" pattern="9[0-9]{8}" inputmode="numeric" required />
+            </div>
+
+            <div class="input-field">
+                <label>Dirección</label>
+                <input type="text" id="edit_usr_direccion" minlength="5" required />
+            </div>
+
+            <button type="submit" class="btn-primary w-100 m-top-15">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', path='/js/modals.js') }}"></script>
+<script src="{{ url_for('static', path='/js/usuarios.js') }}"></script>
+{% endblock %}
