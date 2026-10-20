@@ -72,8 +72,8 @@ function validarDatosRegistro(data) {
         alert("El usuario debe tener entre 3 y 20 caracteres, y solo puede tener letras, numero o guion bajo.");
         return false;
     }
-    if (data.password.length < 5) {
-        alert("La contraseña debe tener al menos 5 caracteres.");
+    if (data.password.length <= 5) {
+        alert("La contraseña debe tener al menos 6 caracteres.");
         return false;
     }
     if (!regexDNI.test(data.dni)) {

@@ -1,0 +1,186 @@
+{% extends "layout.html" %}
+
+{% block title %}Expedientes - Mesa de Partes Digital{% endblock %}
+
+{% block content %}
+<div class="expedientes-header">
+    <div class="header-titles">
+        <h2><i class="fa-solid fa-folder-open"></i> Gestion de Expedientes</h2>
+        <p class="subtitle">Consulta, registra y gestiona el avance de los tramites</p>
+    </div>
+    
+    <div class="header-actions">
+        <!-- buscador -->
+        <div class="search-box-inline">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="filtro-general" onkeyup="filtrarTablaGeneral()" placeholder="Buscar por codigo, tramite, asunto...">
+        </div>
+        
+        <button class="btn-action btn-add" onclick="ModalNuevoExpediente()">
+            <i class="fa-solid fa-plus"></i> Nuevo Tramite
+        </button>
+        
+        <!-- Boton de Reportes (Solo Admin) - Asegúrate de que esté aquí -->
+        <button id="btn-reporte" class="btn-action btn-report admin-only" onclick="cargarReporte()" style="display: none;">
+            <i class="fa-solid fa-chart-pie"></i> Ver Reporte
+        </button>
+    </div>
+</div>
+
+<!-- switch (Solo Admin) -->
+<div class="filtros-secundarios admin-only" style="display: none; margin-bottom: 15px; justify-content: flex-end;">
+    <label class="switch-container">
+        <span class="switch-label">Ver expedientes inactivos</span>
+        <label class="switch">
+            <input type="checkbox" id="switch-inactivos" onchange="cargarTablaExpedientes()">
+            <span class="slider round"></span>
+        </label>
+    </label>
+</div>
+
+<!-- Tabla expedientes -->
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Codigo</th>
+                <th>Remitente</th>
+                <th>Tramite</th>
+                <th>Asunto</th>
+                <th>Progreso</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-expedientes-body">
+            <tr>
+                <td colspan="7" class="loading-cell">Cargando expedientes...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- modal nuevo expediente -->
+<div id="modal-nuevo-expediente" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="cerrarModal('modal-nuevo-expediente')">&times;</span>
+        <h3><i class="fa-solid fa-folder-plus"></i> Registrar Nuevo Expediente</h3>
+        <br>
+        <form id="form-nuevo-expediente" onsubmit="guardarExpediente(event)">
+            <div id="campo-admin-cliente" class="input-field" style="display: none;">
+                <label>Username del Cliente</label>
+                <input type="text" id="exp_username_cliente" placeholder="Ej: maria0123" />
+            </div>
+            
+            <div class="input-field">
+                <label>Tipo de Tramite</label>
+                <select id="exp_tramite" class="custom-select" required>
+                    <option value="" disabled selected>Seleccione una opcion...</option>
+                    <option value="Licencia de Funcionamiento">Licencia de Funcionamiento</option>
+                    <option value="Licencia de Edificacion">Licencia de Edificacion</option>
+                    <option value="Subvencion Economica">Subvencion Economica</option>
+                    <option value="Queja o Denuncia">Queja o Denuncia</option>
+                    <option value="Solicitud de Acceso a la Informacion">Solicitud de Acceso a la Informacion</option>
+                    <option value="Tramite General">Tramite General</option>
+                </select>
+            </div>
+            
+            <div class="input-field">
+                <label>Asunto</label>
+                <input type="text" id="exp_asunto" placeholder="Ej: Renovacion de licencia" required />
+            </div>
+
+            <div class="input-field">
+                <label>Descripcion detallada</label>
+                <textarea id="exp_descripcion" rows="4" placeholder="Describe los detalles de tu solicitud..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary w-100 m-top-15">Guardar Registro</button>
+        </form>
+    </div>
+</div>
+
+<!-- actualizar expediente (admin) -->
+<div id="modal-editar" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="cerrarModal('modal-editar')">&times;</span>
+        <h3><i class="fa-solid fa-pen-to-square"></i> Actualizar Expediente</h3>
+        <form id="form-editar-expediente" onsubmit="procesarEdicion(event)">
+            <input type="hidden" id="edit_codigo" />
+            
+            <div class="input-field">
+                <label class="select-label">Progreso del Tramite</label>
+                <select id="edit_progreso" class="custom-select" required>
+                    <option value="Recibido">Recibido</option>
+                    <option value="Confirmado">Confirmado</option>
+                    <option value="En Revision">En Revision</option>
+                    <option value="Atendido">Atendido</option>
+                </select>
+            </div>
+
+            <div class="input-field">
+                <label>Tramite</label>
+                <input type="text" id="edit_tramite" required />
+            </div>
+
+            <div class="input-field">
+                <label>Asunto</label>
+                <input type="text" id="edit_asunto" required />
+            </div>
+
+            <div class="input-field">
+                <label>Descripcion</label>
+                <textarea id="edit_descripcion" rows="3" required></textarea>
+            </div>
+
+            <hr class="divider">
+            <p class="section-subtitle">Datos de Notificacion del Ciudadano</p>
+
+            <div class="input-field">
+                <label>Correo Electronico</label>
+                <input type="email" id="edit_correo" required />
+            </div>
+
+            <div class="input-field">
+                <label>Celular</label>
+                <input type="tel" id="edit_celular" required />
+            </div>
+
+            <div class="input-field">
+                <label>Direccion</label>
+                <input type="text" id="edit_direccion" required />
+            </div>
+
+            <button type="submit" class="btn-primary w-100 m-top-15">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+
+<!-- reportes modal -->
+<div id="modal-reporte" class="modal">
+    <div class="modal-content modal-large">
+        <span class="close-btn" onclick="cerrarModal('modal-reporte')">&times;</span>
+        <h3><i class="fa-solid fa-chart-pie"></i> Reporte Consolidado de Tramites</h3>
+        <p class="subtitle">Estructura Codigo, Nombre y Estado</p>
+        
+        <div class="table-container m-top-15">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Codigo</th>
+                        <th>Ciudadano</th>
+                        <th>Estado Actual</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-reporte-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', path='/js/modals.js') }}"></script>
+<script src="{{ url_for('static', path='/js/expedientes.js') }}"></script>
+{% endblock %}

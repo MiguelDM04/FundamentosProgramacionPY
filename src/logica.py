@@ -85,9 +85,14 @@ def buscar_expediente(codigo):
             }
     return None
 
-def ordenar_expedientes():
-    """Ordena los expedientes activos alfabeticamente por codigo usando bubble sort"""
-    expedientes = [exp for exp in leer_expedientes() if exp[12] == "True"]
+# Switch para ver inactivos y activos o solo activos | estado
+def ordenar_expedientes(incluir_inactivos=False):
+    """Ordena los expedientes alfabeticamente por codigo usando bubble sort"""
+    if incluir_inactivos:
+        expedientes = leer_expedientes()
+    else:
+        expedientes = [exp for exp in leer_expedientes() if exp[12] == "True"]
+        
     n = len(expedientes)
     for i in range(n): 
         for j in range(0, n - i - 1):

@@ -47,7 +47,7 @@ function cerrarSesion() {
     }
 }
 
-// Helper global para peticiones fetch con Header x-username
+// Para obtener los x-username global
 function getAuthHeaders() {
     const usuario = sessionStorage.getItem('usuario_activo') || '';
     const rol = sessionStorage.getItem('rol_activo') || '';

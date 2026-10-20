@@ -108,6 +108,18 @@ def render_auth(request: Request):
 def render_inicio(request: Request):
     return templates.TemplateResponse(request=request, name="inicio.html")
 
+@app.get("/expedientes", summary="Gestion de Expedientes")
+def render_expedientes(request: Request):
+    return templates.TemplateResponse(request=request, name="expedientes.html")
+
+@app.get("/expedientes/reportes", summary="Generar reporte consolidado usando arreglos paralelos")
+def r_reporte_expedientes(usuario: str = Depends(dependencia_admin)):
+    reporte_data = generar_reporte() # Llama directamente a la función existente en logica.py
+    return {
+        "total_registros": len(reporte_data),
+        "data": reporte_data
+    }
+
 # Autenticacion
 @app.post("/login", summary="Validar credenciales de usuario")
 def r_login(credenciales: LoginRequest):
@@ -210,9 +222,17 @@ def r_registrar_expediente(exp: ExpedienteRequest, usuario: str = Depends(depend
     return {"mensaje": "Expediente registrado exitosamente.", "codigo_generado": nuevo_codigo}
 
 @app.get("/expedientes/", summary="Listar expedientes (con el sort burbuja)")
-def r_listar_expedientes(usuario: str = Depends(dependencia_admin)):
-    exp = ordenar_expedientes()
-    return {"total": len(exp), "expedientes": exp}
+def r_listar_expedientes(estado: str = "activos", usuario: str = Depends(dependencia_usuario)):
+    usuario_actual = obtener_usuario(usuario)
+    rol = usuario_actual[3]
+    
+    incluir_inactivos = (estado == "todos")
+    exp_ordenados = ordenar_expedientes(incluir_inactivos)
+    
+    if rol == "cliente":
+        exp_ordenados = [exp for exp in exp_ordenados if exp[13] == usuario]
+        
+    return {"total": len(exp_ordenados), "expedientes": exp_ordenados}
 
 @app.get("/expedientes/buscar/texto", summary="Búsqueda de expedientes con texto")
 def r_buscar_texto(palabra_clave: str, usuario: str = Depends(dependencia_admin)):
@@ -221,9 +241,6 @@ def r_buscar_texto(palabra_clave: str, usuario: str = Depends(dependencia_admin)
         raise HTTPException(status_code=404, detail="No se encontraron expedientes que contengan ese texto.")
     return {"total_encontrados": len(res), "resultados": res}
 
-@app.get("/expedientes/reportes", summary="Generar reporte") #Arreglo paralelo
-def r_reporte_paralelos(usuario: str = Depends(dependencia_admin)):
-    return {"mensaje": "Reporte generado", "data": generar_reporte()}
 
 @app.get("/expedientes/{codigo}", summary="Consultar expediente por código")
 def r_consultar_expediente(codigo: str, usuario: str = Depends(dependencia_usuario)):

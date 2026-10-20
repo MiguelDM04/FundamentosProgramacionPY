@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat:400,600,800');
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,600,700,800');
 
 * {
     box-sizing: border-box;
@@ -15,6 +15,7 @@
     --border-color: #d1d5db;
     --accent-color: #2563eb;
     --danger-color: #ef4444;
+    --success-color: #10b981;
 }
 
 [data-theme="dark"] {
@@ -25,6 +26,7 @@
     --bg-third: #374151;
     --border-color: #4b5563;
     --accent-color: #3b82f6;
+    --success-color: #34d399;
 }
 
 body {
@@ -35,129 +37,6 @@ body {
     flex-direction: column;
     min-height: 100vh;
     transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Inicio */
-.inicio-card {
-    background-color: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    padding: 40px;
-    margin-top: 30px;
-}
-
-.inicio-imagen-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--bg-secondary);
-    padding: 30px;
-    border-radius: 12px;
-}
-
-.inicio-img {
-    max-width: 100%;
-    max-height: 250px;
-    object-fit: contain;
-}
-
-.inicio-contenido {
-    flex: 1.2;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.welcome-header {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-}
-
-.welcome-header h2 {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: var(--text-primary);
-}
-
-/* Badges de Rol */
-.badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.badge-cliente {
-    background-color: #dbeafe;
-    color: #1e40af;
-}
-
-.badge-admin {
-    background-color: #fef3c7;
-    color: #92400e;
-}
-
-/* Cajas de Descripción */
-.descripcion-box h3 {
-    font-size: 1.2rem;
-    color: var(--accent-color);
-    margin-bottom: 10px;
-}
-
-.descripcion-box p {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: var(--text-secondary);
-    margin-bottom: 25px;
-}
-
-/* Botones de Acción */
-.inicio-acciones {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.btn-primary, .btn-secondary {
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-
-.btn-primary {
-    background-color: var(--accent-color);
-    color: #ffffff;
-}
-
-.btn-primary:hover {
-    opacity: 0.9;
-    transform: translateY(-2px);
-}
-
-.btn-secondary {
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-}
-
-.btn-secondary:hover {
-    background-color: var(--bg-third);
-    transform: translateY(-2px);
 }
 
 /* Navbar */
@@ -207,7 +86,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: background 0.2s;
+    transition: background 0.2s; /*anima suave y gradualmente los cambios de background*/
 }
 
 .nav-btn:hover {
@@ -230,7 +109,7 @@ body {
     color: #fff;
 }
 
-/* MAIN CONTAINER */
+/* container principal */
 .main-container {
     flex: 1;
     max-width: 1200px;
@@ -239,7 +118,7 @@ body {
     padding: 0 20px;
 }
 
-/* FOOTER */
+/* footer */
 .footer {
     background-color: var(--bg-primary);
     border-top: 1px solid var(--border-color);
@@ -294,6 +173,508 @@ body {
     font-size: 0.85rem;
 }
 
+/* Inicio */
+.inicio-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 40px;
+    margin-top: 30px;
+}
+
+.inicio-imagen-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    padding: 30px;
+    border-radius: 12px;
+}
+
+.inicio-img {
+    max-width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+}
+
+.inicio-contenido {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.welcome-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.welcome-header h2 {
+    font-size: 1.8rem; /*cada rem equivale a 16px depende del tamaño de la fuente en el html*/
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+/* Badges de Rol */
+.badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-cliente {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.badge-admin {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* Cajas de Descripción */
+.descripcion-box h3 {
+    font-size: 1.2rem;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+}
+
+.descripcion-box p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 25px;
+}
+
+/* Botones  */
+.inicio-acciones {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    cursor: pointer;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-third);
+    transform: translateY(-2px);
+}
+
+/* Expedientes */
+.expedientes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.btn-action {
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-add { background-color: var(--accent-color); color: #fff; }
+.btn-search { background-color: var(--bg-third); color: var(--text-primary); }
+.btn-filter { background-color: #8b5cf6; color: #fff; }
+.btn-report { background-color: #10b981; color: #fff; }
+
+/* BUSCADOR en tabla */
+.search-box-inline {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.search-box-inline .search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.search-box-inline input {
+    padding: 10px 15px 10px 35px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    width: 275px;
+    transition: all 0.3s ease;
+}
+
+.search-box-inline input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    width: 320px; /* Se expande ligeramente al hacer clic */
+}
+
+/* Switch inactivos */
+.switch-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--border-color);
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--accent-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+.slider.round {
+    border-radius: 20px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Tablas */
+.table-container {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow-x: auto;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.data-table th, .data-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table th {
+    background-color: var(--bg-secondary);
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.fila-inactiva {
+    opacity: 0.55;
+    background-color: var(--bg-secondary);
+}
+
+/*progresos*/
+.badge-progreso {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.badge-recibido { background-color: #e0f2fe; color: #0369a1; }
+.badge-confirmado { background-color: #fef3c7; color: #b45309; }
+.badge-revision { background-color: #f3e8ff; color: #6b21a8; }
+.badge-atendido { background-color: #d1fae5; color: #047857; }
+
+/* Botones de accion en tabla */
+/* Alineación de celdas de acción en la tabla */
+/* Corrección para la celda de Acciones en la tabla */
+.action-cells {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.action-cells span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background-color: var(--bg-secondary);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+/* Botones temáticos compactos para que entren perfecto en la tabla */
+.btn-thematic {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: 0.2s;
+}
+
+.btn-edit {
+    background-color: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+}
+
+.btn-edit:hover {
+    background-color: #bfdbfe;
+}
+
+.btn-delete {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.btn-delete:hover {
+    background-color: #fecaca;
+}
+
+.btn-reactivate {
+    background-color: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+
+.btn-reactivate:hover {
+    background-color: #a7f3d0;
+}
+
+/* MODALES */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background-color: var(--bg-primary);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-large { max-width: 800px; }
+
+.close-btn {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.detalle-card {
+    background-color: var(--bg-secondary);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    line-height: 1.6;
+}
+
+.resultado-item {
+    background-color: var(--bg-secondary);
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Campos de formulario */
+.input-field {
+    margin-bottom: 18px;
+    width: 100%;
+    text-align: left; /* Corrige el texto centrado de la imagen */
+}
+
+.input-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.input-field input,
+.input-field textarea,
+.custom-select {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    box-sizing: border-box; /* Evita que el padding desborde la caja */
+}
+
+/* Evita que el textarea se pueda estirar horizontalmente y romper el modal */
+.input-field textarea {
+    resize: vertical; 
+}
+
+/* Efecto al hacer clic en los campos */
+.input-field input:focus,
+.input-field textarea:focus,
+.custom-select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); /* Resplandor azul suave */
+}
+
+.select-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.divider {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin: 20px 0;
+}
+
+.section-subtitle {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+}
+
+/* Clases de utilidad */
+.w-100 {
+    width: 100%;
+}
+.m-top-15 {
+    margin-top: 15px;
+}
+.m-bottom-10 {
+    margin-bottom: 10px;
+}
+
+/* Responsivo */
 @media (max-width: 768px) {
     .inicio-card {
         flex-direction: column;
@@ -363,5 +744,13 @@ body {
     .footer-brand {
         flex-direction: column;
         gap: 5px;
+    }
+
+    .search-box-inline input {
+        width: 100%;
+    }
+
+    .search-box-inline input:focus {
+        width: 100%;
     }
 }
