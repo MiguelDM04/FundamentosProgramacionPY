@@ -3,7 +3,7 @@ from datetime import datetime
 from datos import (
     leer_expedientes, guardar_expediente, actualizar_expediente_db, obtener_usuario,
     guardar_usuario, leer_usuarios, desactivar_usuario, activar_usuario_db, 
-    actualizar_perfil, obtener_ultimo_codigo, actualizar_usuario
+    actualizar_perfil, obtener_ultimo_codigo, actualizar_usuario, obtener_usuario_dni
 )
 
 # >>> USUARIO <<<
@@ -21,11 +21,15 @@ def verificar_admin(username):
     user = obtener_usuario(username)
     return user and user[3] == "admin" and user[4] == "True"
 
+#Probar a hacer la validacion con "MENSAJE" en vez de true y false
 def crear_usuario(username, password, rol, dni, nombreCompleto, correo, celular, direccion):
     if obtener_usuario(username):#Verifica que el username no se repita
-        return False
+        return "USERNAME_DUPLICADO"
+    if obtener_usuario_dni(dni):
+        return "DNI_DUPLICADO"
+    
     guardar_usuario(username, cifrar_password(password), rol, dni, nombreCompleto, correo, celular, direccion, "True")
-    return True
+    return "OK"
 
 def listar_usuarios(incluir_inactivos=False):
     todos = leer_usuarios()
@@ -34,6 +38,17 @@ def listar_usuarios(incluir_inactivos=False):
     else:
         # Filtra que el estado sea activo
         return [u for u in todos if u["estado"] == "True"]
+
+def modificar_usuario(username, rol, dni, nombreCompleto, correo, celular, direccion):
+    """Lógica para actualizar usuario validando que el DNI no le pertenezca a otra persona"""
+    userdni = obtener_usuario_dni(dni)
+    
+    # Si el DNI existe pero le pertenece a un username distinto al que estamos editando
+    if userdni and userdni[0] != username:
+        return "DNI_DUPLICADO"
+        
+    actualizar_usuario(username, rol, dni, nombreCompleto, correo, celular, direccion)
+    return "OK"
 
 def eliminar_usuario(username, username_admin):
     if username == username_admin:#se valida que el admin no se elimine a si mismo por seguridad
@@ -67,14 +82,6 @@ def generar_codigo():
         #Hace que el formato sea 0001
         return f"EXP-{nuevo_numero:04d}"#:04d rellena con ceros a la izquierda hasta los 4 digitos
     return "EXP-0001"
-
-def verificar_codigo(codigo):
-    """Verifica si el codigo ya existe sea activo o inactivo"""
-    expedientes = leer_expedientes()
-    for exp in expedientes:
-        if exp[0].upper() == codigo.upper():
-            return True
-    return False
 
 def buscar_usuario(username):
     """Buscar un usuario específico y retornarlo como diccionario"""

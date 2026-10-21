@@ -145,13 +145,21 @@ async function guardarExpediente(e) {
     if (rol === 'admin') payload.username_cliente = document.getElementById('exp_username_cliente').value;
 
     try {
-        const resp = await fetch('/expedientes/', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(payload) });
+        const resp = await fetch('/expedientes/', { 
+            method: 'POST', 
+            headers: getAuthHeaders(), 
+            body: JSON.stringify(payload) 
+        });
+        
         if (resp.ok) {
             cerrarModal('modal-nuevo-expediente');
             document.getElementById('form-nuevo-expediente').reset();
             cargarTablaExpedientes();
         } else {
-            alert("Error al registrar");
+            const err = await resp.json();
+            alert(err.detail || "Error al registrar el expediente");
         }
-    } catch (error) { alert("Error"); }
+    } catch (error) { 
+        alert("Error de conexión."); 
+    }
 }

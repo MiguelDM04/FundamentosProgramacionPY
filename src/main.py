@@ -7,10 +7,11 @@ from fastapi.staticfiles import StaticFiles
 from datos import inicializar_db, guardar_expediente, obtener_usuario, actualizar_perfil, actualizar_usuario
 from logica import (
     validar_dni, buscar_expediente, ordenar_expedientes, 
-    actualizar_expediente, desactivar_expediente, verificar_codigo, 
+    actualizar_expediente, desactivar_expediente,
     activar_expediente, verificar_admin, crear_usuario, 
     listar_usuarios, eliminar_usuario, activar_usuario,
-    buscar_expediente_texto, generar_reporte, generar_codigo, autenticar_usuario, buscar_usuario
+    buscar_expediente_texto, generar_reporte, generar_codigo, 
+    autenticar_usuario, buscar_usuario, modificar_usuario
 )
 
 app = FastAPI(
@@ -143,7 +144,7 @@ def r_login(credenciales: LoginRequest):
 
 @app.post("/registro", summary="Registro cliente")
 def r_registro(nuevo_user: RegistroClienteRequest):   
-    exito = crear_usuario(
+    resultado = crear_usuario(
         nuevo_user.username, 
         nuevo_user.password, 
         "cliente", 
@@ -153,9 +154,12 @@ def r_registro(nuevo_user: RegistroClienteRequest):
         nuevo_user.celular, 
         nuevo_user.direccion
     )
-    if not exito:
-        raise HTTPException(status_code=400, detail="El nombre de usuario o DNI ya está en uso.")
-        
+
+    if resultado == "USERNAME_DUPLICADO":
+        raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso.")
+    elif resultado == "DNI_DUPLICADO":
+        raise HTTPException(status_code=400, detail="El DNI ingresado ya se encuentra registrado.")
+    
     return {"mensaje": f"Usuario {nuevo_user.username} registrado correctamente."}
 
 # >>> USUARIOS <<<
@@ -165,7 +169,7 @@ def r_crear_usuario(nuevo_user: RegistroClienteRequest, admin_user: str = Depend
         raise HTTPException(status_code=400, detail="DNI de usuario inválido. Debe tener 8 dígitos numéricos.")
     
     # Aquí se respeta el rol que el administrador haya seleccionado en el formulario (cliente o admin)
-    exito = crear_usuario(
+    resultado = crear_usuario(
         nuevo_user.username, 
         nuevo_user.password, 
         nuevo_user.rol, 
@@ -176,9 +180,11 @@ def r_crear_usuario(nuevo_user: RegistroClienteRequest, admin_user: str = Depend
         nuevo_user.direccion
     )
     
-    if not exito:
-        raise HTTPException(status_code=400, detail="El nombre de usuario o DNI ya está en uso.")
-        
+    if resultado == "USERNAME_DUPLICADO":
+        raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso.")
+    elif resultado == "DNI_DUPLICADO":
+        raise HTTPException(status_code=400, detail="El DNI ingresado ya se encuentra registrado.")      
+    
     return {"mensaje": f"Usuario {nuevo_user.username} creado correctamente con rol '{nuevo_user.rol}'."}
 
 @app.get("/usuarios/", summary="Ver lista de usuarios")
@@ -242,11 +248,11 @@ def r_actualizar_expediente(codigo: str, exp_upd: ExpedienteUpdateRequest, usuar
 
 @app.put("/usuarios/{username}", summary="Actualizar usuario (Admin)")
 def r_actualizar_usuario(username: str, datos: UsuarioUpdateRequest, admin_user: str = Depends(dependencia_admin)):
-    # Validar que el usuario exista primero
+    
     if not obtener_usuario(username):
         raise HTTPException(status_code=404, detail="El usuario no existe.")
         
-    actualizar_usuario(
+    resultado = modificar_usuario(
         username, 
         datos.rol, 
         datos.dni, 
@@ -255,6 +261,9 @@ def r_actualizar_usuario(username: str, datos: UsuarioUpdateRequest, admin_user:
         datos.celular, 
         datos.direccion
     )
+    
+    if resultado == "DNI_DUPLICADO":
+        raise HTTPException(status_code=400, detail="El DNI ingresado ya pertenece a otro usuario registrado.")
     
     return {"mensaje": f"Usuario '{username}' actualizado correctamente."}
 
@@ -270,8 +279,10 @@ def r_registrar_expediente(exp: ExpedienteRequest, usuario: str = Depends(depend
     else:
         if not exp.username_cliente:#En caso sea un admin ingresando un expediente y esta vacio
             raise HTTPException(status_code=400, detail="El Administrador debe especificar el username_cliente para enlazar el trámite.")
+        
         if not obtener_usuario(exp.username_cliente):#En caso sea admin y se equivoca de username
-            raise HTTPException(status_code=404, detail="El cliente indicado no existe en la base de datos.")
+            raise HTTPException(status_code=404, detail="El username no es correcto.")
+        
         propietario_username = exp.username_cliente
 
     # Genera el codigo del expediente

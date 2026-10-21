@@ -78,6 +78,15 @@ def obtener_usuario(username):
     conexion.close()
     return user
 
+def obtener_usuario_dni(dni):
+    """Busca y retorna el username de usuarios segun su DNI si existe"""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT username FROM usuarios WHERE dni = ?", (dni,))
+    resultado = cursor.fetchone()
+    conexion.close()
+    return resultado
+
 def leer_usuarios():
     conexion = conectar()
     cursor = conexion.cursor()

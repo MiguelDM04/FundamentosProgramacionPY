@@ -134,8 +134,13 @@ async function guardarNuevoUsuario(e) {
             cargarTablaUsuarios(); 
         } else {
             const err = await resp.json();
-            alert(err.detail || "Error al registrar usuario");
-        }
+            if (Array.isArray(err.detail)) {
+                alert("Error en el formulario: " + err.detail[0].msg);
+            } else {
+                alert(err.detail || "Ocurrio un error inesperado")
+            }
+            
+        } 
     } catch (error) { alert("Error de conexión."); }
 }
 
