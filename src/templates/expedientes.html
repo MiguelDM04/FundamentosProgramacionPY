@@ -70,7 +70,7 @@
         <form id="form-nuevo-expediente" onsubmit="guardarExpediente(event)">
             <div id="campo-admin-cliente" class="input-field" style="display: none;">
                 <label>Username del Cliente</label>
-                <input type="text" id="exp_username_cliente" placeholder="Ej: maria0123" />
+                <input type="text" id="exp_username_cliente" placeholder="Ej: andre123" />
             </div>
             
             <div class="input-field">
@@ -147,17 +147,17 @@
 
             <div class="input-field">
                 <label>Correo Electrónico</label>
-                <input type="email" id="usr_correo" placeholder=" " required/>                
+                <input type="email" id="edit_correo" placeholder=" " required/>                
             </div>
             
             <div class="input-field">
                 <label>Celular</label>
-                <input type="tel" id="usr_celular" minlength="9" maxlength="9" pattern="9[0-9]{8}" inputmode="numeric" title="El celular debe empezar con 9 y tener 9 dígitos" placeholder=" " required />
+                <input type="tel" id="edit_celular" minlength="9" maxlength="9" pattern="9[0-9]{8}" inputmode="numeric" title="El celular debe empezar con 9 y tener 9 dígitos" placeholder=" " required />
             </div>
 
             <div class="input-field">
                 <label>Dirección</label>
-                <input type="text" id="usr_direccion" minlength="5" placeholder=" " required />
+                <input type="text" id="edit_direccion" minlength="5" placeholder=" " required />
             </div>
 
             <button type="submit" class="btn-primary w-100 m-top-15">Guardar Cambios</button>

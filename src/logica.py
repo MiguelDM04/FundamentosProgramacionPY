@@ -59,6 +59,12 @@ def eliminar_usuario(username, username_admin):
         return True
     return False
 
+def actualizar_perfil_usuario(username, correo, celular, direccion):
+    """Lógica para que el usuario actualice sus datos de contacto"""
+    # Aquí en el futuro podrías agregar validaciones extra si lo deseas
+    actualizar_perfil(username, correo, celular, direccion)
+    return True
+
 def activar_usuario(username):
     user = obtener_usuario(username)
     if user and user[4] == "False":#se valida que su estado este como false osea eliminado
@@ -69,19 +75,6 @@ def activar_usuario(username):
 def validar_dni(dni):
     """" isdigit valida que sea numeros | len(dni) que la length sea de 8"""
     return dni.isdigit() and len(dni) == 8
-
-# >>> Expediente <<<
-def generar_codigo():
-    ultimo_codigo = obtener_ultimo_codigo()
-    if not ultimo_codigo:
-        return "EXP-0001"
-
-    partes = ultimo_codigo.split("-")
-    if len(partes) == 2 and partes[1].isdigit():
-        nuevo_numero = int(partes[1]) + 1 #lo convierte a int y lo suma
-        #Hace que el formato sea 0001
-        return f"EXP-{nuevo_numero:04d}"#:04d rellena con ceros a la izquierda hasta los 4 digitos
-    return "EXP-0001"
 
 def buscar_usuario(username):
     """Buscar un usuario específico y retornarlo como diccionario"""
@@ -101,6 +94,21 @@ def buscar_usuario(username):
             "direccion": u[9]
         }
     return None
+
+# >>> Expediente <<<
+def generar_codigo():
+    ultimo_codigo = obtener_ultimo_codigo()
+    if not ultimo_codigo:
+        return "EXP-0001"
+
+    partes = ultimo_codigo.split("-")
+    if len(partes) == 2 and partes[1].isdigit():
+        nuevo_numero = int(partes[1]) + 1 #lo convierte a int y lo suma
+        #Hace que el formato sea 0001
+        return f"EXP-{nuevo_numero:04d}"#:04d rellena con ceros a la izquierda hasta los 4 digitos
+    return "EXP-0001"
+
+
 
 def buscar_expediente(codigo):
     """Busca expedientes activos segun su codigo"""

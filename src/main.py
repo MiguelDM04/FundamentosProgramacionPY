@@ -11,7 +11,7 @@ from logica import (
     activar_expediente, verificar_admin, crear_usuario, 
     listar_usuarios, eliminar_usuario, activar_usuario,
     buscar_expediente_texto, generar_reporte, generar_codigo, 
-    autenticar_usuario, buscar_usuario, modificar_usuario
+    autenticar_usuario, buscar_usuario, modificar_usuario, actualizar_perfil_usuario
 )
 
 app = FastAPI(
@@ -29,7 +29,7 @@ templates = Jinja2Templates(directory="templates")
 inicializar_db()
 
 
-# >>> SEGURIDAD <<<
+# >>> validar rol <<<
 def dependencia_admin(x_admin: str = Header(..., description="Ingresa tu usuario")):
     if not verificar_admin(x_admin):#Si el usuario no tiene admin
         raise HTTPException(status_code=403, detail="Acceso Denegado. Se requiere rol de administrador.")
@@ -126,13 +126,9 @@ def render_expedientes(request: Request):
 def render_usuarios(request: Request):
     return templates.TemplateResponse(request=request, name="usuarios.html")
 
-@app.get("/expedientes/reportes", summary="Generar reporte consolidado usando arreglos paralelos")
-def r_reporte_expedientes(usuario: str = Depends(dependencia_admin)):
-    reporte_data = generar_reporte() # Llama directamente a la función existente en logica.py
-    return {
-        "total_registros": len(reporte_data),
-        "data": reporte_data
-    }
+@app.get("/perfil", summary="Mi Perfil")
+def render_perfil(request: Request):
+    return templates.TemplateResponse(request=request, name="perfil.html")
 
 # Autenticacion
 @app.post("/login", summary="Validar usuario")
@@ -216,6 +212,21 @@ def r_activar_usuario(username: str, admin_user: str = Depends(dependencia_admin
         raise HTTPException(status_code=404, detail="No se pudo activar el usuario. Verifique que exista y este desactivado.")
     return {"mensaje": "Usuario reactivado exitosamente."}
 
+@app.get("/perfil/datos/{username}", summary="Obtener datos del propio perfil")
+def r_obtener_mi_perfil(username: str, usuario: str = Depends(dependencia_usuario)):
+    # Solo puede ver sus propios datos
+    usuario_autenticado = obtener_usuario(usuario)
+    rol = usuario_autenticado[3]
+    
+    if rol == "cliente" and usuario != username:
+        raise HTTPException(status_code=403, detail="No tienes permisos para ver este perfil.")
+        
+    perfil = buscar_usuario(username)
+    if not perfil:
+        raise HTTPException(status_code=404, detail="Perfil no encontrado.")
+        
+    return perfil
+
 @app.put("/perfil/{username}", summary="Actualizar perfil de usuario (Cliente y Admin)")
 def r_actualizar_perfil(username: str, datos: PerfilUpdatePayload, usuario: str = Depends(dependencia_usuario)):
     usuario_autenticado = obtener_usuario(usuario)
@@ -227,24 +238,19 @@ def r_actualizar_perfil(username: str, datos: PerfilUpdatePayload, usuario: str 
             status_code=403, 
             detail="Acceso denegado. No tienes permisos para actualizar el perfil de otro usuario."
         )
+        
     # Valida que el usuario exista
     if not obtener_usuario(username):
         raise HTTPException(
             status_code=404, 
             detail="El usuario que intenta actualizar no existe en la base de datos."
         )
-    actualizar_perfil(username, datos.correo, datos.celular, datos.direccion)
+        
+    actualizar_perfil_usuario(username, datos.correo, datos.celular, datos.direccion)
 
     return {
         "mensaje": f"Perfil del usuario '{username}' actualizado correctamente por {rol_autenticado}."
     }
-
-@app.put("/expedientes/{codigo}", summary="Actualizar estado del expediente o contacto")
-def r_actualizar_expediente(codigo: str, exp_upd: ExpedienteUpdateRequest, usuario: str = Depends(dependencia_admin)):
-    exito = actualizar_expediente(codigo, exp_upd.correo, exp_upd.celular, exp_upd.direccion, exp_upd.tramite, exp_upd.asunto, exp_upd.descripcion, exp_upd.progreso)
-    if not exito:
-        raise HTTPException(status_code=404, detail="Expediente no existe o está inactivo.")
-    return {"mensaje": f"Expediente {codigo} actualizado y notificado a los datos de contacto."}
 
 @app.put("/usuarios/{username}", summary="Actualizar usuario (Admin)")
 def r_actualizar_usuario(username: str, datos: UsuarioUpdateRequest, admin_user: str = Depends(dependencia_admin)):
@@ -309,12 +315,27 @@ def r_listar_expedientes(estado: str = "activos", usuario: str = Depends(depende
         
     return {"total": len(exp_ordenados), "expedientes": exp_ordenados}
 
+@app.put("/expedientes/{codigo}", summary="Actualizar estado del expediente o contacto")
+def r_actualizar_expediente(codigo: str, exp_upd: ExpedienteUpdateRequest, usuario: str = Depends(dependencia_admin)):
+    exito = actualizar_expediente(codigo, exp_upd.correo, exp_upd.celular, exp_upd.direccion, exp_upd.tramite, exp_upd.asunto, exp_upd.descripcion, exp_upd.progreso)
+    if not exito:
+        raise HTTPException(status_code=404, detail="Expediente no existe o está inactivo.")
+    return {"mensaje": f"Expediente {codigo} actualizado y notificado a los datos de contacto."}
+
 @app.get("/expedientes/buscar/texto", summary="Búsqueda de expedientes con texto")
 def r_buscar_texto(palabra_clave: str, usuario: str = Depends(dependencia_admin)):
     res = buscar_expediente_texto(palabra_clave)
     if not res: 
         raise HTTPException(status_code=404, detail="No se encontraron expedientes que contengan ese texto.")
     return {"total_encontrados": len(res), "resultados": res}
+
+@app.get("/expedientes/reportes", summary="Generar reporte consolidado usando arreglos paralelos")
+def r_reporte_expedientes(usuario: str = Depends(dependencia_admin)):
+    reporte_data = generar_reporte() # Llama directamente a la función existente en logica.py
+    return {
+        "total_registros": len(reporte_data),
+        "data": reporte_data
+    }
 
 
 @app.get("/expedientes/{codigo}", summary="Consultar expediente por código")
@@ -339,9 +360,6 @@ def r_consultar_expediente(codigo: str, usuario: str = Depends(dependencia_usuar
         )
 
     return expediente
-
-
-
 
 @app.delete("/expedientes/{codigo}", summary="Desactivar expediente")
 def r_eliminar_expediente(codigo: str, usuario: str = Depends(dependencia_admin)):

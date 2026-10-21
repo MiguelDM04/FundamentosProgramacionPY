@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block title %}Mi Perfil - Mesa de Partes Digital{% endblock %}
+
+{% block content %}
+<div class="expedientes-header">
+    <div class="header-titles">
+        <h2><i class="fa-solid fa-user-gear"></i> Mi Perfil</h2>
+        <p class="subtitle">Visualiza y actualiza tus datos de contacto para notificaciones</p>
+    </div>
+</div>
+
+<section class="inicio-card" style="max-width: 650px; margin: 0 auto; display: block;">
+    <form id="form-perfil" onsubmit="guardarPerfil(event)">
+        
+        <div class="input-field">
+            <label>Nombre de Usuario</label>
+            <input type="text" id="perfil_username" disabled style="opacity: 0.7;" />
+        </div>
+        
+        <div class="input-field">
+            <label>Nombre Completo</label>
+            <input type="text" id="perfil_nombre" disabled style="opacity: 0.7;" />
+        </div>
+        
+        <div class="input-field">
+            <label>DNI</label>
+            <input type="text" id="perfil_dni" disabled style="opacity: 0.7;" />
+        </div>
+        
+        <hr class="divider">
+        <p class="section-subtitle">Datos de Contacto (Editables)</p>
+        
+        <div class="input-field">
+            <label>Correo Electrónico</label>
+            <input type="email" id="perfil_correo" required />
+        </div>
+        
+        <div class="input-field">
+            <label>Celular</label>
+            <input type="tel" id="perfil_celular" minlength="9" maxlength="9" pattern="9[0-9]{8}" title="Debe empezar con 9 y tener 9 dígitos" required />
+        </div>
+        
+        <div class="input-field">
+            <label>Dirección</label>
+            <input type="text" id="perfil_direccion" minlength="5" required />
+        </div>
+        
+        <button type="submit" class="btn-primary w-100 m-top-15">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+        </button>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', path='/js/perfil.js') }}"></script>
+{% endblock %}
