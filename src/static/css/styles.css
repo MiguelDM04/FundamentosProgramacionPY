@@ -674,6 +674,27 @@ input:checked + .slider:before {
     margin-bottom: 10px;
 }
 
+/*Scrollbar estilos */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 5px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
     .inicio-card {
