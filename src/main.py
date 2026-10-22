@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from datos import inicializar_db, guardar_expediente, obtener_usuario, actualizar_perfil, actualizar_usuario
 from logica import (
-    validar_dni, buscar_expediente, ordenar_expedientes, 
+    buscar_expediente, ordenar_expedientes, 
     actualizar_expediente, desactivar_expediente,
     activar_expediente, verificar_admin, crear_usuario, 
     listar_usuarios, eliminar_usuario, activar_usuario,
@@ -161,8 +161,6 @@ def r_registro(nuevo_user: RegistroClienteRequest):
 # >>> USUARIOS <<<
 @app.post("/usuarios/", summary="Crear nuevo usuario (Exclusivo Administrador)")
 def r_crear_usuario(nuevo_user: RegistroClienteRequest, admin_user: str = Depends(dependencia_admin)):
-    if not validar_dni(nuevo_user.dni):
-        raise HTTPException(status_code=400, detail="DNI de usuario inválido. Debe tener 8 dígitos numéricos.")
     
     # Aquí se respeta el rol que el administrador haya seleccionado en el formulario (cliente o admin)
     resultado = crear_usuario(

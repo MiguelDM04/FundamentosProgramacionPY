@@ -72,10 +72,6 @@ def activar_usuario(username):
         return True
     return False
 
-def validar_dni(dni):
-    """" isdigit valida que sea numeros | len(dni) que la length sea de 8"""
-    return dni.isdigit() and len(dni) == 8
-
 def buscar_usuario(username):
     """Buscar un usuario específico y retornarlo como diccionario"""
     u = obtener_usuario(username)
