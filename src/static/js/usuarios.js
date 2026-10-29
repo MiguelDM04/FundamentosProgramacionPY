@@ -106,7 +106,7 @@ function filtrarTablaUsuarios() {
     });
 }
 
-// CDA
+// CDA (create delete activate)
 async function guardarNuevoUsuario(e) {
     e.preventDefault();
     

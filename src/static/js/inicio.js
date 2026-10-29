@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const usuarioActivo = sessionStorage.getItem('usuario_activo') || 'Usuario';
     const rolActivo = sessionStorage.getItem('rol_activo') || 'cliente';
 
-    // Inyectar el nombre del usuario
+    // Inyecta el nombre del usuario
     const Inombre = document.getElementById('nombre-usuario');
     if (Inombre) {
         Inombre.textContent = usuarioActivo;

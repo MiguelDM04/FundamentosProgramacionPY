@@ -1,10 +1,11 @@
 
-// Abrir y cerrar modal
+// Mostrar/Abrir modal
 function abrirModal(idModal) {
     const modal = document.getElementById(idModal);
     if (modal) modal.style.display = 'flex';
 }
 
+// Ocultar/cerrar modal
 function cerrarModal(idModal) {
     const modal = document.getElementById(idModal);
     if (modal) modal.style.display = 'none';
@@ -17,20 +18,21 @@ window.onclick = function(event) {
     }
 };
 
-// --- modal nuevo expediente ---
+// >>> modal nuevo expediente <<<
 function ModalNuevoExpediente() {
     const rol = sessionStorage.getItem('rol_activo');
     const campoAdmin = document.getElementById('campo-admin-cliente');
     
     if (rol === 'admin' && campoAdmin) {
-        campoAdmin.style.display = 'block';
+        campoAdmin.style.display = 'block';//en caso sea admin muestra el txt para ingresar usuario
     } else if (campoAdmin) {
         campoAdmin.style.display = 'none';
     }
     abrirModal('modal-nuevo-expediente');
 }
 
-// --- modal actualizar expediente ---
+// >>> modal actualizar expediente <<<
+//Carga los datos del expediente en el modal de actualizacion
 async function prepararEdicion(codigo) {
     try {
         const resp = await fetch(`/expedientes/${codigo}`, {
@@ -56,9 +58,9 @@ async function prepararEdicion(codigo) {
         alert("Error de conexión.");
     }
 }
-
+//Guarda los cambios de los datos 
 async function procesarEdicion(e) {
-    e.preventDefault();
+    e.preventDefault();//evita que el navegador se recargue auto
     const codigo = document.getElementById('edit_codigo').value;
 
     const payload = {
@@ -91,7 +93,7 @@ async function procesarEdicion(e) {
     }
 }
 
-// --- modal reporte ---
+//  >>> modal reporte <<<
 async function cargarReporte() {
     try {
         const resp = await fetch('/expedientes/reportes', {
@@ -114,7 +116,7 @@ async function cargarReporte() {
                 `;
             });
 
-            tbody.innerHTML = html;
+            tbody.innerHTML = html; //Inyecta en el tbody
             abrirModal('modal-reporte');
         } else {
             alert("No se pudo generar el reporte.");
@@ -134,7 +136,6 @@ async function prepararEdicionUsuario(username) {
         if (resp.ok) {
             const data = await resp.json();
             
-            // Verificamos que los IDs coincidan exactamente con tu HTML
             document.getElementById('edit_usr_username').value = data.username;
             document.getElementById('edit_usr_rol').value = data.rol;
             document.getElementById('edit_usr_nombre').value = data.nombreCompleto;

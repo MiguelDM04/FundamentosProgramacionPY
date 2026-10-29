@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarDatosPerfil();
 });
 
-// Carga los datos actuales al abrir la página
+// Carga los datos actuales cuando se abre el perfil
 async function cargarDatosPerfil() {
     const username = sessionStorage.getItem('usuario_activo');
     if (!username) return;

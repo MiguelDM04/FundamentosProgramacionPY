@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Visibilidad por rol
+    // Visibilidad por rol del navbar
     const navUsuarios = document.getElementById('nav-usuarios');
     if (navUsuarios) {
         if (rolActivo === 'admin') {
@@ -20,14 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // guardar tema ligh / dark
+    // guardar tema light / dark
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.body.setAttribute('data-theme', 'dark');
     }
 });
 
-// Función para cambiar de tema
+// Funcion para cambiar de tema
 function toggleTheme() {
     const body = document.body;
     if (body.getAttribute('data-theme') === 'dark') {
@@ -39,7 +39,7 @@ function toggleTheme() {
     }
 }
 
-// Función cerrar sesion
+// Funcion para cerrar sesion
 function cerrarSesion() {
     if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
         sessionStorage.clear();
@@ -47,7 +47,7 @@ function cerrarSesion() {
     }
 }
 
-// Para obtener los x-username global
+// Para obtener los x-username dependiendo del rol
 function getAuthHeaders() {
     const usuario = sessionStorage.getItem('usuario_activo') || '';
     const rol = sessionStorage.getItem('rol_activo') || '';

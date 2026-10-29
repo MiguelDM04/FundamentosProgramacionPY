@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Mostrar switch si es admin
+    // Verifica el rol del usuario logueado
     const rol = sessionStorage.getItem('rol_activo');
     if (rol === 'admin') {
         const filtros = document.querySelector('.filtros-secundarios');
@@ -58,7 +58,8 @@ function renderizarTabla(lista, tbody, rol) {
         // Estilos para inactivos
         const filaClass = activo ? 'fila-expediente' : 'fila-expediente fila-inactiva';
         const badgeActivo = activo ? '<span class="badge-progreso badge-atendido">Activo</span>' : '<span class="badge-progreso" style="background:#fca5a5; color:#7f1d1d;">Inactivo</span>';
-
+        
+        //Botones en caso esta activado o desactivado | solo admin
         let accionesHtml = '';
         if (rol === 'admin') {
             if (activo) {
@@ -77,7 +78,7 @@ function renderizarTabla(lista, tbody, rol) {
                     </button>
                 `;
             }
-        } else {
+        } else {// Es cliente
             accionesHtml = `<span style="font-size: 0.8rem; color: var(--text-secondary)">Solo Lectura</span>`;
         }
 
@@ -118,6 +119,7 @@ function filtrarTablaGeneral() {
     });
 }
 
+//Confirmacion de desactivar
 async function desactivarExpediente(codigo) {
     if (!confirm(`¿Está seguro de desactivar el expediente ${codigo}?`)) return;
     try {
@@ -126,6 +128,7 @@ async function desactivarExpediente(codigo) {
     } catch (e) { alert("Error"); }
 }
 
+//Confirmacion de activacion
 async function activarExpediente(codigo) {
     if (!confirm(`¿Desea reactivar el expediente ${codigo}?`)) return;//`` se usa estas para poder usar ${} 
     try {
@@ -133,6 +136,7 @@ async function activarExpediente(codigo) {
         if (resp.ok) cargarTablaExpedientes();
     } catch (e) { alert("Error"); }
 }
+
 
 async function guardarExpediente(e) {
     e.preventDefault();
@@ -151,7 +155,7 @@ async function guardarExpediente(e) {
             body: JSON.stringify(payload) 
         });
         
-        if (resp.ok) {
+        if (resp.ok) {//En caso se ejecuta correctamente cierra modal, reset los txt y carga nuevamente la tabla
             cerrarModal('modal-nuevo-expediente');
             document.getElementById('form-nuevo-expediente').reset();
             cargarTablaExpedientes();
