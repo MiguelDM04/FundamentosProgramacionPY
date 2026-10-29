@@ -8,9 +8,11 @@ from datos import (
 
 # >>> USUARIO <<<
 def cifrar_password(password):
+    """Cifrar contraseña con SHA256"""
     return hashlib.sha256(password.encode()).hexdigest()
 
 def autenticar_usuario(username, password):
+    """Verifica credenciales y retorna los datos del usuario si es correcto"""
     user = obtener_usuario(username)
     if user and user[4] == "True":
         if user[2] == cifrar_password(password):
@@ -18,12 +20,14 @@ def autenticar_usuario(username, password):
     return None
 
 def verificar_admin(username):
+    """Valida si el usuario tiene rol de admin y si existe"""
     user = obtener_usuario(username)
     return user and user[3] == "admin" and user[4] == "True"
 
-#Probar a hacer la validacion con "MENSAJE" en vez de true y false
+#Probamos a hacer la validacion con "MENSAJE" en vez de true y false
 def crear_usuario(username, password, rol, dni, nombreCompleto, correo, celular, direccion):
-    if obtener_usuario(username):#Verifica que el username no se repita
+    """Valida duplicados e inserta usuario"""
+    if obtener_usuario(username):
         return "USERNAME_DUPLICADO"
     if obtener_usuario_dni(dni):
         return "DNI_DUPLICADO"
@@ -32,6 +36,7 @@ def crear_usuario(username, password, rol, dni, nombreCompleto, correo, celular,
     return "OK"
 
 def listar_usuarios(incluir_inactivos=False):
+    """Devuelve el listado, con un filtro de inactivos"""
     todos = leer_usuarios()
     if incluir_inactivos:
         return todos
@@ -40,7 +45,7 @@ def listar_usuarios(incluir_inactivos=False):
         return [u for u in todos if u["estado"] == "True"]
 
 def modificar_usuario(username, rol, dni, nombreCompleto, correo, celular, direccion):
-    """Lógica para actualizar usuario validando que el DNI no le pertenezca a otra persona"""
+    """Actualizar usuario validando que el DNI no le pertenezca a otra persona"""
     userdni = obtener_usuario_dni(dni)
     
     # Si el DNI existe pero le pertenece a un username distinto al que estamos editando
@@ -50,7 +55,14 @@ def modificar_usuario(username, rol, dni, nombreCompleto, correo, celular, direc
     actualizar_usuario(username, rol, dni, nombreCompleto, correo, celular, direccion)
     return "OK"
 
+def actualizar_perfil_usuario(username, correo, celular, direccion):
+    """Para que el usuario actualice sus datos de contacto"""
+    # Aquí en el futuro podrías agregar validaciones extra si lo deseas
+    actualizar_perfil(username, correo, celular, direccion)
+    return True
+
 def eliminar_usuario(username, username_admin):
+    """Borrado logico a un usuario con validacion para que no se autoelimine el admin"""
     if username == username_admin:#se valida que el admin no se elimine a si mismo por seguridad
         return False
     user = obtener_usuario(username)
@@ -59,13 +71,8 @@ def eliminar_usuario(username, username_admin):
         return True
     return False
 
-def actualizar_perfil_usuario(username, correo, celular, direccion):
-    """Lógica para que el usuario actualice sus datos de contacto"""
-    # Aquí en el futuro podrías agregar validaciones extra si lo deseas
-    actualizar_perfil(username, correo, celular, direccion)
-    return True
-
 def activar_usuario(username):
+    """Reactivado logico de un usuario eliminado"""
     user = obtener_usuario(username)
     if user and user[4] == "False":#se valida que su estado este como false osea eliminado
         activar_usuario_db(username)
@@ -73,26 +80,20 @@ def activar_usuario(username):
     return False
 
 def buscar_usuario(username):
-    """Buscar un usuario específico y retornarlo como diccionario"""
+    """Buscar un usuario específico y retorna como diccionario"""
     u = obtener_usuario(username)
     # Verificamos que el usuario exista y esté activo (estado == "True")
     if u and u[4] == "True":
-        return {
-            "id": u[0], 
-            "username": u[1], 
-            "password": u[2], 
-            "rol": u[3], 
-            "estado": u[4], 
-            "dni": u[5], 
-            "nombreCompleto": u[6], 
-            "correo": u[7], 
-            "celular": u[8], 
-            "direccion": u[9]
+        return {# diccionario
+            "id": u[0], "username": u[1], "rol": u[3],
+            "estado": u[4], "dni": u[5], "nombreCompleto": u[6], 
+            "correo": u[7], "celular": u[8], "direccion": u[9]
         }
     return None
 
-# >>> Expediente <<<
+# >>> Expedientes <<<
 def generar_codigo():
+    """Genera automaticamente el codigo de expediente (EXP-0001)"""
     ultimo_codigo = obtener_ultimo_codigo()
     if not ultimo_codigo:
         return "EXP-0001"
@@ -104,10 +105,8 @@ def generar_codigo():
         return f"EXP-{nuevo_numero:04d}"#:04d rellena con ceros a la izquierda hasta los 4 digitos
     return "EXP-0001"
 
-
-
 def buscar_expediente(codigo):
-    """Busca expedientes activos segun su codigo"""
+    """Busca expedientes activo segun su codigo"""
     expedientes = leer_expedientes()
     for exp in expedientes:
         if exp[0].upper() == codigo.upper() and exp[12] == "True":
@@ -136,6 +135,7 @@ def ordenar_expedientes(incluir_inactivos=False):
     return expedientes
 
 def buscar_expediente_texto(texto):
+    """Busca segun el nombre completo, asunto o descripcion"""
     expedientes = leer_expedientes()
     resultados = []#crea lista vacia/arreglo unidimensional
     texto_limpio = texto.strip().lower()#lo hace lowercase y quita espacios
@@ -150,6 +150,7 @@ def buscar_expediente_texto(texto):
 
 #arreglo paralelo
 def generar_reporte():
+    """Genera reporte de codigos, nombres y progresos usando arreglo paralelo"""
     expedientes = leer_expedientes()
     array_codigos = []#Cada [] de estos es una lista simple/ arreglo unidimensional
     array_nombres = []
@@ -168,7 +169,7 @@ def generar_reporte():
 
 
 def actualizar_expediente(codigo, correo, celular, direccion, tramite, asunto, descripcion, progreso):
-    """Actualiza los datos de un expediente segun el codigo"""
+    """Actualiza los datos de un expediente e informacion de contacto del cliente segun el codigo"""
     exp = buscar_expediente(codigo)
     if exp:
         fecha_mod = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -179,6 +180,7 @@ def actualizar_expediente(codigo, correo, celular, direccion, tramite, asunto, d
     return False
 
 def desactivar_expediente(codigo):
+    """Borrado logico cambiando su estado a False"""
     exp = buscar_expediente(codigo)
     if exp:
         fecha_mod = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -187,6 +189,7 @@ def desactivar_expediente(codigo):
     return False
 
 def activar_expediente(codigo_buscado):
+    """Reactiva logicamente a un expediente inactivo cambiando estado a True"""
     expedientes = leer_expedientes()
     for exp in expedientes:
         if exp[0].upper() == codigo_buscado.upper() and exp[12] == "False":

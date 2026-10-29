@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             badge.textContent = 'Administrador';
             badge.classList.add('badge-admin');
         }
-        if (boxAdmin) boxAdmin.style.display = 'block';
+        if (boxAdmin) boxAdmin.style.display = 'block';//Lo hace visible
     } else {
         if (badge) {
             badge.textContent = 'Ciudadano / Cliente';

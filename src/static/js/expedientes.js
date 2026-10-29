@@ -103,18 +103,18 @@ function filtrarTablaGeneral() {
     const filas = document.querySelectorAll(".fila-expediente");
 
     filas.forEach(fila => {
-        // Obtenemos todas las celdas que tienen la clase col-filtro
+        // Se agarran todas las celdas que tienen la clase col-filtro
         const celdas = fila.querySelectorAll(".col-filtro");
         let coincide = false;
         
         celdas.forEach(celda => {
             const texto = celda.textContent || celda.innerText;
-            if (texto.toUpperCase().indexOf(input) > -1) {
+            if (texto.toUpperCase().indexOf(input) > -1) {//verifica que lo escrito este en la celda si encuentra = true
                 coincide = true;
             }
         });
 
-        fila.style.display = coincide ? "" : "none";
+        fila.style.display = coincide ? "" : "none";//ocultas las filas que no coinciden con la busqueda
     });
 }
 
@@ -127,7 +127,7 @@ async function desactivarExpediente(codigo) {
 }
 
 async function activarExpediente(codigo) {
-    if (!confirm(`¿Desea reactivar el expediente ${codigo}?`)) return;
+    if (!confirm(`¿Desea reactivar el expediente ${codigo}?`)) return;//`` se usa estas para poder usar ${} 
     try {
         const resp = await fetch(`/expedientes/${codigo}/activar`, { method: 'PATCH', headers: getAuthHeaders() });
         if (resp.ok) cargarTablaExpedientes();

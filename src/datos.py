@@ -3,13 +3,15 @@ import sqlite3
 import hashlib
 
 db_name = "mesa_partes.db"
+#Para ver comentarios de """ en la consola de una funcion
+#cd src -> py -> import file.py -> print(file.funcion.__doc__)
 
 def conectar():
-    """Crea y retorna la Conexion al archivo BD de SQLite"""
+    """Crea y retorna la conexion al archivo BD de SQLite"""
     return sqlite3.connect(db_name)
 
 def inicializar_db():
-    """Crea las tablas y se agrega un usuario admin default"""
+    """Crea las tablas y agrega dos usuarios en caso no exista ninguno"""
     conexion = conectar()
     cursor = conexion.cursor()#Se usa para las consultas SQL
 
@@ -61,8 +63,9 @@ def inicializar_db():
     conexion.close()#Cierra conexion para liberar recursos
 
 
-# >>>> CRUD usuario <<<<
+# >>>> CRUD usuarios <<<<
 def guardar_usuario(username, password, rol, dni, nombreCompleto, correo, celular, direccion, estado="True"):
+    """Inserta un usuario en la BD"""
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("INSERT INTO usuarios (username, password, rol, estado, dni, nombreCompleto, correo, celular, direccion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -71,6 +74,7 @@ def guardar_usuario(username, password, rol, dni, nombreCompleto, correo, celula
     conexion.close()
 
 def obtener_usuario(username):
+    """Obtiene un usuario especifico usando el username BD"""
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("SELECT * FROM usuarios WHERE username = ?", (username,))#sin la coma da error | para que lo reciba como lista parametros
@@ -79,7 +83,7 @@ def obtener_usuario(username):
     return user
 
 def obtener_usuario_dni(dni):
-    """Busca y retorna el username de usuarios segun su DNI si existe"""
+    """Busca y retorna el username de usuarios segun su DNI BD"""
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("SELECT username FROM usuarios WHERE dni = ?", (dni,))
@@ -88,6 +92,8 @@ def obtener_usuario_dni(dni):
     return resultado
 
 def leer_usuarios():
+    """Lee todos los usuarios sin mostrar contraseñas por seguridad y retorna una lista de diccionarios"""
+    #usuarios = [{"nombre":"miguel", "dni":7437472},{"nombre":"andre", "dni":3123123}] <- lista diccionarios
     conexion = conectar()
     cursor = conexion.cursor()
     #No se devuelve la contraseña por seguridad
@@ -98,6 +104,7 @@ def leer_usuarios():
     return [{"id": u[0], "username": u[1], "rol": u[2], "estado": u[3], "dni": u[4], "nombreCompleto": u[5], "correo": u[6], "celular": u[7], "direccion": u[8]} for u in usuarios]
 
 def desactivar_usuario(username):
+    """Hace un borrado logico del usuario actualizando su estado a False"""
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("UPDATE usuarios SET estado = 'False' WHERE username = ?", (username,))
@@ -105,6 +112,7 @@ def desactivar_usuario(username):
     conexion.close()
 
 def activar_usuario_db(username):
+    """Activa logicamente el usuario actualizando su estado a True"""
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("UPDATE usuarios SET estado = 'True' WHERE username = ?", (username,))
@@ -113,6 +121,7 @@ def activar_usuario_db(username):
 
 #En caso el cliente cambia de correo, celular o direccion lo puede actualizar en su perfil
 def actualizar_perfil(username, correo, celular, direccion):
+    """Actualiza los datos de contacto del usuario"""
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("UPDATE usuarios SET correo = ?, celular = ?, direccion = ? WHERE username = ?", (correo, celular, direccion, username))
@@ -120,6 +129,7 @@ def actualizar_perfil(username, correo, celular, direccion):
     conexion.close()  
 
 def actualizar_usuario(username, rol, dni, nombreCompleto, correo, celular, direccion):
+    """Actualiza la informacion de un usuario (solo admin)"""
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute('''
@@ -133,6 +143,7 @@ def actualizar_usuario(username, rol, dni, nombreCompleto, correo, celular, dire
 
 # >>>> CRUD expedientes <<<<
 def guardar_expediente(codigo, usuario_username, tramite, asunto, descripcion, progreso, fecha_creacion, fecha_modificacion, estado="True"):
+    """Inserta un nuevo expediente"""
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute("INSERT INTO expedientes VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -141,7 +152,7 @@ def guardar_expediente(codigo, usuario_username, tramite, asunto, descripcion, p
     conexion.close()
 
 def leer_expedientes():
-    """"Leer todos los expedientes de la bd y lo retorna como lista de listas"""
+    """"Lee todos los expedientes de la tabla tambien usando inner join usuario y lo retorna como lista de listas"""
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute('''
@@ -155,10 +166,11 @@ def leer_expedientes():
     filas = cursor.fetchall()
     conexion.close()
     # Se convierte los registro de SQLite a listas para poder ordenar | arreglo bidimensional
-    return [list(fila) for fila in filas]#cada conjunto de datos lo convierte en una lista independi    ente, osea una lista de listas
+    return [list(fila) for fila in filas]#cada conjunto de datos lo convierte en una lista independiente, osea una lista de listas
 
 
 def actualizar_expediente_db(codigo, tramite, asunto, descripcion, progreso, fecha_modificacion, estado):
+    """Actualiza el expediente"""
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute(''' 

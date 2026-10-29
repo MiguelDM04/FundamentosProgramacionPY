@@ -1,7 +1,7 @@
 // Control de deslizamiento de los overlay 
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('container');
-    const btnRegistro = document.getElementById('registro');
+    const btnRegistro = document.getElementById('registro');/*Estos son los botones para cambiar de login a registrar*/
     const btnInicioSesion = document.getElementById('inicioSesion');
 
     btnRegistro.addEventListener('click', () => {
@@ -46,7 +46,7 @@ async function procesarLogin(e) {
 
         if (resp.ok) {
             const data = await resp.json();
-            // Guardamos usuario activo en la sesión del navegador para usarlo en otras pantallas
+            // Guardamos usuario activo en la sesión del navegador para usarlo en las otras pantallas
             sessionStorage.setItem('usuario_activo', data.usuario.username);
             sessionStorage.setItem('rol_activo', data.usuario.rol);
             // Redirigir a inicio
@@ -115,7 +115,7 @@ async function procesarRegistro(e) {
 
     // Validación local de los datos ingresados
     if (!validarDatosRegistro(payload)) {
-        return;
+        return;//Lo interrumpe si no se cumple
     }
 
     try {
