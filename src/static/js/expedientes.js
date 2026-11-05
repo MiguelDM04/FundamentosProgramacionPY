@@ -58,9 +58,7 @@ function renderizarTabla(lista, tbody, rol) {
         // Estilos para inactivos
         const filaClass = activo ? 'fila-expediente' : 'fila-expediente fila-inactiva';
         const badgeActivo = activo ? '<span class="badge-progreso badge-atendido">Activo</span>' : '<span class="badge-progreso" style="background:#fca5a5; color:#7f1d1d;">Inactivo</span>';
-        const btnEvidencias = `
-            
-        `;
+
 
         //Botones en caso esta activado o desactivado | solo admin
         let accionesHtml = '';
@@ -161,9 +159,16 @@ async function guardarExpediente(e) {
 
     // Obtenemos los archivos seleccionados
     const inputEvidencias = document.getElementById('exp_evidencias');
+    const tiposPermitidos = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
     if (inputEvidencias.files.length > 0) {
         for (let i = 0; i < inputEvidencias.files.length; i++) {
-            formData.append('evidencias', inputEvidencias.files[i]);
+            const archivo = inputEvidencias.files[i];
+
+            if(!tiposPermitidos.includes(archivo.type)){
+                alert(`Error: El archivo "${archivo.name}" no es válido. Solo se permiten imágenes o documentos PDF.`);
+                return;
+            }
+            formData.append('evidencias', archivo);
         }
     }
 

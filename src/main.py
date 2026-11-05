@@ -298,9 +298,13 @@ async def r_registrar_expediente(#se removio expediente request y se movio aqui
 
     # Lee los archivos subidos en memoria y los envia a la logica
     archivos_procesar = []
+    tiposPermitidos = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/jpg']
     if evidencias:
         for archivo in evidencias:
             if archivo.filename:
+                if archivo.content_type not in tiposPermitidos:
+                    raise HTTPException(status_code=400, detail=f"el archivo '{archivo.filename}' no es valido. Solo se admiten PDFs e imagenes")
+                
                 contenido = await archivo.read() # Await es necesario para leer archivos async en FastAPI
                 archivos_procesar.append({
                     "filename": archivo.filename,
