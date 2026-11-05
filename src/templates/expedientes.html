@@ -27,8 +27,22 @@
     </div>
 </div>
 
-<!-- switch (Admin) -->
-<div class="filtros-secundarios admin-only" style="display: none; margin-bottom: 15px; justify-content: flex-end;">
+<!-- Filtros solo admin-->
+<div class="filtros-secundarios admin-only" style="display: none; margin-bottom: 15px; justify-content: flex-end; align-items: center; gap: 20px;">
+    
+    <!-- Filtro por progreso -->
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <label for="filtro-progreso-select" style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);">Progreso:</label>
+        <select id="filtro-progreso-select" class="custom-select" onchange="cargarTablaExpedientes()" style="padding: 6px 12px; width: auto; font-size: 0.85rem;">
+            <option value="todos" selected>Todos</option>
+            <option value="Recibido">Recibido</option>
+            <option value="Confirmado">Confirmado</option>
+            <option value="Revision">Revision</option>
+            <option value="Atendido">Atendido</option>
+        </select>
+    </div>
+
+    <!-- SWITCH DE INACTIVOS -->
     <label class="switch-container">
         <span class="switch-label">Ver expedientes inactivos</span>
         <label class="switch">
@@ -121,7 +135,7 @@
                 <select id="edit_progreso" class="custom-select" required>
                     <option value="Recibido">Recibido</option>
                     <option value="Confirmado">Confirmado</option>
-                    <option value="En Revision">En Revision</option>
+                    <option value="Revision">Revision</option>
                     <option value="Atendido">Atendido</option>
                 </select>
             </div>

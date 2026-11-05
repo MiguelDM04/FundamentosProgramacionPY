@@ -18,8 +18,12 @@ async function cargarTablaExpedientes() {
     const switchInactivos = document.getElementById('switch-inactivos');
     const estado = (switchInactivos && switchInactivos.checked) ? "todos" : "activos";
 
+    //Lee el estado del dropdown de progreso 
+    const selectProgreso = document.getElementById('filtro-progreso-select');
+    const progreso = selectProgreso ? selectProgreso.value : "todos";
+
     try {
-        const resp = await fetch(`/expedientes/?estado=${estado}`, {
+        const resp = await fetch(`/expedientes/?estado=${estado}&progreso=${progreso}`, {
             headers: getAuthHeaders()
         });
 
@@ -27,10 +31,10 @@ async function cargarTablaExpedientes() {
             const data = await resp.json();
             renderizarTabla(data.expedientes, tbody, rol);
         } else {
-            tbody.innerHTML = `<tr><td colspan="8" class="error-cell">Error al obtener expedientes.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="error-cell">Error al obtener expedientes.</td></tr>`;
         }
     } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="8" class="error-cell">Error de conexión.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="error-cell">Error de conexión.</td></tr>`;
     }
 }
 
@@ -83,7 +87,9 @@ function renderizarTabla(lista, tbody, rol) {
                 `;
             }
         } else {// Es cliente
-            accionesHtml = `<span style="font-size: 0.8rem; color: var(--text-secondary)">Solo Lectura</span>`;
+            accionesHtml = `<button class="btn-thematic" style="background-color: #fef3c7; color: #d97706; border: 1px solid #fde68a;" title="Ver Evidencias" onclick="verEvidencias('${codigo}')">
+                        <i class="fa-solid fa-paperclip"></i>
+                    </button>`;
         }
 
         html += `

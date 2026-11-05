@@ -324,7 +324,7 @@ def r_obtener_evidencias(codigo: str, usuario: str = Depends(dependencia_usuario
     return {"evidencias": evidencias}
 
 @app.get("/expedientes/", summary="Listar expedientes con bubble sort")
-def r_listar_expedientes(estado: str = "activos", usuario: str = Depends(dependencia_usuario)):
+def r_listar_expedientes(estado: str = "activos", progreso: str = "todos",usuario: str = Depends(dependencia_usuario)):
     """Retorna los expedientes ordenados por codigo con bubble sort | filtra por usuario y por estado de expediente"""
     usuario_actual = obtener_usuario(usuario)
     rol = usuario_actual[3]
@@ -334,6 +334,9 @@ def r_listar_expedientes(estado: str = "activos", usuario: str = Depends(depende
     
     if rol == "cliente":
         exp_ordenados = [exp for exp in exp_ordenados if exp[13] == usuario]
+
+    if progreso.lower() != "todos":
+        exp_ordenados = [exp for exp in exp_ordenados if exp[9].lower() == progreso.lower()]
         
     return {"total": len(exp_ordenados), "expedientes": exp_ordenados}
 
