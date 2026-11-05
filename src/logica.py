@@ -257,7 +257,7 @@ def guardar_evidencias(expediente_codigo: str, archivos_data: list):
 
         # Generación de nombre: fecha + codigo + extension | se hace esto para evitar nombres duplicados
         nombre_generado = f"{fecha_str_nombre}_{expediente_codigo}_{i}{extension}"
-        ruta_fisica = f"static/uploadss/{nombre_generado}"#quitar s para probar reintentos
+        ruta_fisica = f"static/uploads/{nombre_generado}"#quitar s para probar reintentos
         ruta_web = f"/{ruta_fisica}"
         
         # Se eligio la funcion recursiva
