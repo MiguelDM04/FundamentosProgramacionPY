@@ -237,8 +237,9 @@ def guardar_evidencias(expediente_codigo: str, archivos_data: list):
     os.makedirs("static/uploads", exist_ok=True)
     fecha_subida = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     fecha_str_nombre = datetime.now().strftime("%Y%m%d_%H%M%S") # Formato para la fecha del nombre que se generara
-    
-    for archivo in archivos_data:
+
+    #Para que el nombre sea unico se agrega un indice que empieza en 1
+    for i, archivo in enumerate(archivos_data, start=1):
         nombre_original = archivo["filename"]
         contenido = archivo["content"]
         
@@ -246,8 +247,8 @@ def guardar_evidencias(expediente_codigo: str, archivos_data: list):
         extension = os.path.splitext(nombre_original)[1].lower()
         tamaño_bytes = len(contenido)
         
-        # Generación de nombre: Date + Codigo + Extension | se hace esto para evitar nombres duplicados
-        nombre_generado = f"{fecha_str_nombre}_{expediente_codigo}{extension}"
+        # Generación de nombre: fecha + codigo + extension | se hace esto para evitar nombres duplicados
+        nombre_generado = f"{fecha_str_nombre}_{expediente_codigo}_{i}{extension}"
         ruta_fisica = f"static/uploads/{nombre_generado}"#ruta donde se guardara el archivo
         ruta_web = f"/{ruta_fisica}"
         
