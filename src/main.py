@@ -14,7 +14,7 @@ from logica import (
     listar_usuarios, eliminar_usuario, activar_usuario,
     buscar_expediente_texto, generar_reporte, generar_codigo, 
     autenticar_usuario, buscar_usuario, modificar_usuario, actualizar_perfil_usuario
-    ,guardar_evidencias, obtener_evidencias
+    ,guardar_evidencias, obtener_evidencias, registrar_evidencias_bd
 )
 
 app = FastAPI(
@@ -262,7 +262,7 @@ def r_actualizar_perfil(username: str, datos: PerfilUpdatePayload, usuario: str 
 
 
 # >>> EXPEDIENTES <<<
-@app.post("/expedientes/", summary="Registrar nuevo expediente con evidencias")
+@app.post("/expedientes/", summary="Registrar nuevo expediente")
 async def r_registrar_expediente(#se removio expediente request y se movio aqui 
     tramite: str = Form(...),
     asunto: str = Form(...),
@@ -289,6 +289,23 @@ async def r_registrar_expediente(#se removio expediente request y se movio aqui
     nuevo_codigo = generar_codigo()
     # Obtiene la fecha para fecha_creacion y fecha_modificacion
     fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    archivos_procesar = []
+    if evidencias:
+        for archivo in evidencias:
+            if archivo.filename:
+                contenido = await archivo.read()
+                archivos_procesar.append({
+                    "filename": archivo.filename,
+                    "content": contenido
+                })
+
+    datos = []
+    if archivos_procesar:
+        datos = guardar_evidencias(nuevo_codigo, archivos_procesar)
+        if datos is False:
+            # Si falla da error para que no se suba a la bd
+            raise HTTPException(status_code=500, detail="Fallo de conexion registrar los archivos adjuntos. Intentelo mas tarde")
     
     # Guarda los datos del expediente
     guardar_expediente(
@@ -296,24 +313,8 @@ async def r_registrar_expediente(#se removio expediente request y se movio aqui
         descripcion, "Recibido", fecha_actual, fecha_actual, "True"
     )
 
-    # Lee los archivos subidos en memoria y los envia a la logica
-    archivos_procesar = []
-    tiposPermitidos = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/jpg']
-    if evidencias:
-        for archivo in evidencias:
-            if archivo.filename:
-                if archivo.content_type not in tiposPermitidos:
-                    raise HTTPException(status_code=400, detail=f"el archivo '{archivo.filename}' no es valido. Solo se admiten PDFs e imagenes")
-                
-                contenido = await archivo.read() # Await es necesario para leer archivos async en FastAPI
-                archivos_procesar.append({
-                    "filename": archivo.filename,
-                    "content": contenido
-                })
-    
-    # Llama a la función de logica.py para guardarlo
-    if archivos_procesar:
-        guardar_evidencias(nuevo_codigo, archivos_procesar)
+    if datos:
+        registrar_evidencias_bd(nuevo_codigo, datos, fecha_actual)
 
     return {"mensaje": "Expediente registrado exitosamente.", "codigo_generado": nuevo_codigo}
 

@@ -198,9 +198,13 @@ async function guardarExpediente(e) {
         } else {
             const err = await resp.json();
             alert(err.detail || "Error al registrar expediente.");
+            document.getElementById('form-nuevo-expediente').reset();
+            cerrarModal('modal-nuevo-expediente');//Se cierra en caso salga error
         }
     } catch (error) { 
         alert("Error de conexión al guardar el expediente."); 
+        document.getElementById('form-nuevo-expediente').reset();
+        cerrarModal('modal-nuevo-expediente');//Se cierra en caso salga error
     }
 }
 
