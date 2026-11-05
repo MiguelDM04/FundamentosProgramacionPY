@@ -204,6 +204,7 @@ def activar_expediente(codigo_buscado):
 def guardar_archivo_iterativo(contenido: bytes, ruta_fisica: str, max_reintentos: int = 3) -> bool:
     """Intenta guardar el archivo usando un bucle iterativo si hay fallas de escritura."""
     intentos = 0
+    #Condicion de parada que los intentos mayores a 3
     while intentos < max_reintentos:
         try:
             with open(ruta_fisica, "wb") as f:
@@ -218,11 +219,12 @@ def guardar_archivo_iterativo(contenido: bytes, ruta_fisica: str, max_reintentos
 
 def guardar_archivo_recursivo(contenido: bytes, ruta_fisica: str, reintentos_restantes: int = 3) -> bool:
     """Intenta guardar el archivo llamándose usando recursividad(llamarse a si misma) si hay fallas de escritura."""
+    #Condicion de parada si los reintentos son menores o iguales a 0
     if reintentos_restantes <= 0:
         print("Error: Se agotaron los reintentos de envio. No se pudo guardar el archivo. Intetelo mas tarde")
         return False
     try:
-        with open(ruta_fisica, "wb") as f:
+        with open(ruta_fisica, "wb") as f:#write binary = wb
             f.write(contenido)
         return True
     except Exception as e:
