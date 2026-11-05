@@ -443,7 +443,6 @@ input:checked + .slider:before {
 
 .data-table th, .data-table td {
     padding: 14px 18px;
-    border-bottom: 1px solid var(--border-color);
 }
 
 .data-table th {
@@ -473,10 +472,13 @@ input:checked + .slider:before {
 /* Botones de accion en tabla */
 .action-cells {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     gap: 8px;
-    min-height: 38px;
+    width: 100%;
+    height: auto; /* Elimina cualquier min-height o height fijo que empuje los botones arriba */
+    margin: 0;
+    padding: 0;
 }
 
 .btn-thematic {
@@ -707,6 +709,33 @@ input[type="file"] {
     text-align: center;
     color: var(--text-secondary);
     padding: 20px;
+}
+
+/* Utilidad Especial para Input de File (Evidencias) */
+input[type="file"]::-webkit-file-upload-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    margin-right: 10px;
+    transition: opacity 0.2s ease;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+    opacity: 0.9;
+}
+
+/* Personalización del scroll para la lista de evidencias */
+#contenedor-lista-evidencias::-webkit-scrollbar {
+    width: 6px;
+}
+#contenedor-lista-evidencias::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
 }
 
 /* Responsivo */

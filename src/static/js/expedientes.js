@@ -58,7 +58,10 @@ function renderizarTabla(lista, tbody, rol) {
         // Estilos para inactivos
         const filaClass = activo ? 'fila-expediente' : 'fila-expediente fila-inactiva';
         const badgeActivo = activo ? '<span class="badge-progreso badge-atendido">Activo</span>' : '<span class="badge-progreso" style="background:#fca5a5; color:#7f1d1d;">Inactivo</span>';
-        
+        const btnEvidencias = `
+            
+        `;
+
         //Botones en caso esta activado o desactivado | solo admin
         let accionesHtml = '';
         if (rol === 'admin') {
@@ -69,6 +72,9 @@ function renderizarTabla(lista, tbody, rol) {
                     </button>
                     <button class="btn-thematic btn-delete" title="Desactivar" onclick="desactivarExpediente('${codigo}')">
                         <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button class="btn-thematic" style="background-color: #fef3c7; color: #d97706; border: 1px solid #fde68a;" title="Ver Evidencias" onclick="verEvidencias('${codigo}')">
+                        <i class="fa-solid fa-paperclip"></i>
                     </button>
                 `;
             } else {
@@ -141,29 +147,102 @@ async function activarExpediente(codigo) {
 async function guardarExpediente(e) {
     e.preventDefault();
     const rol = sessionStorage.getItem('rol_activo');
-    const payload = {
-        tramite: document.getElementById('exp_tramite').value,
-        asunto: document.getElementById('exp_asunto').value,
-        descripcion: document.getElementById('exp_descripcion').value
-    };
-    if (rol === 'admin') payload.username_cliente = document.getElementById('exp_username_cliente').value;
+    
+    // Utilizamos FormData para poder adjuntar los archivos
+    const formData = new FormData();
+    formData.append('tramite', document.getElementById('exp_tramite').value);
+    formData.append('asunto', document.getElementById('exp_asunto').value);
+    formData.append('descripcion', document.getElementById('exp_descripcion').value);
+    
+    if (rol === 'admin') {
+        const usernameCliente = document.getElementById('exp_username_cliente').value.trim();
+        formData.append('username_cliente', usernameCliente);
+    }
+
+    // Obtenemos los archivos seleccionados
+    const inputEvidencias = document.getElementById('exp_evidencias');
+    if (inputEvidencias.files.length > 0) {
+        for (let i = 0; i < inputEvidencias.files.length; i++) {
+            formData.append('evidencias', inputEvidencias.files[i]);
+        }
+    }
 
     try {
-        const resp = await fetch('/expedientes/', { 
-            method: 'POST', 
-            headers: getAuthHeaders(), 
-            body: JSON.stringify(payload) 
+        const headers = getAuthHeaders();
+        // Al enviar FormData, el navegador debe calcular el Content-Type automaticamente.
+        delete headers['Content-Type']; 
+
+        const resp = await fetch('/expedientes/', {
+            method: 'POST',
+            headers: headers,
+            body: formData
         });
-        
-        if (resp.ok) {//En caso se ejecuta correctamente cierra modal, reset los txt y carga nuevamente la tabla
-            cerrarModal('modal-nuevo-expediente');
+
+        if (resp.ok) {
+            const res = await resp.json();
+            alert(`¡Expediente registrado correctamente!\nCodigo del Expediente: ${res.codigo_generado}`);
+            cerrarModal('modal-nuevo-expediente'); // Cuando se ejecute correctamente cierra modal
             document.getElementById('form-nuevo-expediente').reset();
             cargarTablaExpedientes();
         } else {
             const err = await resp.json();
-            alert(err.detail || "Error al registrar el expediente");
+            alert(err.detail || "Error al registrar expediente.");
         }
     } catch (error) { 
-        alert("Error de conexión."); 
+        alert("Error de conexión al guardar el expediente."); 
+    }
+}
+
+//ver evidencias
+async function verEvidencias(codigo) {
+    document.getElementById('evi_codigo_titulo').innerText = codigo;
+    const contenedor = document.getElementById('contenedor-lista-evidencias');
+    contenedor.innerHTML = '<p class="loading-cell">Cargando evidencias...</p>';
+    abrirModal('modal-evidencias');
+
+    try {
+        const resp = await fetch(`/expedientes/${codigo}/evidencias`, {
+            headers: getAuthHeaders()
+        });
+
+        if (resp.ok) {
+            const data = await resp.json();
+            
+            if (data.evidencias.length === 0) {
+                contenedor.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">No hay evidencias adjuntas en este expediente.</p>';
+                return;
+            }
+
+            let html = '';
+            data.evidencias.forEach(archivo => {
+                const esPdf = archivo.extension.toLowerCase().includes('pdf');
+                const icono = esPdf ? 'fa-file-pdf' : 'fa-image';
+                const colorIcono = esPdf ? 'var(--danger-color)' : 'var(--accent-color)';
+                
+                // Formatear tamaño
+                const kb = (archivo.tamaño / 1024).toFixed(1);
+                const tamañoTexto = kb > 1024 ? (kb / 1024).toFixed(2) + ' MB' : kb + ' KB';
+
+                html += `
+                    <div class="resultado-item" style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <i class="fa-solid ${icono}" style="font-size: 1.8rem; color: ${colorIcono};"></i>
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); word-break: break-all;">${archivo.nombre}</span>
+                                <span style="font-size: 0.75rem; color: var(--text-secondary);">${tamañoTexto} • ${archivo.fecha_subida}</span>
+                            </div>
+                        </div>
+                        <a href="${archivo.ruta}" target="_blank" class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">
+                            <i class="fa-solid fa-eye"></i> Ver
+                        </a>
+                    </div>
+                `;
+            });
+            contenedor.innerHTML = html;
+        } else {
+            contenedor.innerHTML = '<p style="color: var(--danger-color); text-align: center;">Error al obtener los archivos.</p>';
+        }
+    } catch (error) {
+        contenedor.innerHTML = '<p style="color: var(--danger-color); text-align: center;">Error de conexión.</p>';
     }
 }

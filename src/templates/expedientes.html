@@ -96,6 +96,13 @@
                 <textarea id="exp_descripcion" rows="4" placeholder="Describe los detalles de tu solicitud..." required></textarea>
             </div>
 
+            <div class="input-field">
+                <label>Evidencias Adjuntas (PDF, Imágenes)</label>
+                <!-- multiple sirve para subir varios archivos a la vez y accept las extensiones -->
+                <input type="file" id="exp_evidencias" multiple accept="image/*, .pdf" style="padding: 10px; background-color: var(--bg-secondary); border-radius: 8px; width: 100%; border: 1px dashed var(--border-color); color: var(--text-primary);" />
+                <span style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-top: 5px;">*Puedes seleccionar múltiples archivos.</span>
+            </div>
+
             <button type="submit" class="btn-primary w-100 m-top-15">Guardar Registro</button>
         </form>
     </div>
@@ -184,6 +191,19 @@
                 </thead>
                 <tbody id="tabla-reporte-body"></tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal ver evidencias del expediente -->
+<div id="modal-evidencias" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="cerrarModal('modal-evidencias')">&times;</span>
+        <h3><i class="fa-solid fa-paperclip"></i> Evidencias del Expediente <span id="evi_codigo_titulo" style="color: var(--accent-color);"></span></h3>
+        <p class="section-subtitle" style="margin-top: 5px;">Archivos adjuntados del expediente</p>
+        
+        <div id="contenedor-lista-evidencias" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px; max-height: 400px; overflow-y: auto;">
+            <!-- La lista se genera con JS -->
         </div>
     </div>
 </div>
