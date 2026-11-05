@@ -1,9 +1,11 @@
+import os
 import hashlib
 from datetime import datetime
 from datos import (
     leer_expedientes, guardar_expediente, actualizar_expediente_db, obtener_usuario,
     guardar_usuario, leer_usuarios, desactivar_usuario, activar_usuario_db, 
     actualizar_perfil, obtener_ultimo_codigo, actualizar_usuario, obtener_usuario_dni
+    ,guardar_evidencia_db, leer_evidencias_db
 )
 
 # >>> USUARIO <<<
@@ -197,3 +199,63 @@ def activar_expediente(codigo_buscado):
             actualizar_expediente_db(exp[0], exp[6], exp[7], exp[8], exp[9], fecha_mod, "True")
             return True
     return False
+
+# >>> Evidencias - Guardado de archivo <<<
+def guardar_archivo_iterativo(contenido: bytes, ruta_fisica: str, max_reintentos: int = 3) -> bool:
+    """Intenta guardar el archivo usando un bucle iterativo si hay fallas de escritura."""
+    intentos = 0
+    while intentos < max_reintentos:
+        try:
+            with open(ruta_fisica, "wb") as f:
+                f.write(contenido)
+            return True
+        except Exception as e:
+            intentos += 1
+            print(f"Fallo al escribir el archivo ({e}). Reintentos maximos({max_reintentos}). Intento actual {intentos}")
+            
+    print("Error: Se agotaron los reintentos de envio. No se pudo guardar el archivo. Intetelo mas tarde")
+    return False
+
+def guardar_archivo_recursivo(contenido: bytes, ruta_fisica: str, reintentos_restantes: int = 3) -> bool:
+    """Intenta guardar el archivo llamándose usando recursividad(llamarse a si misma) si hay fallas de escritura."""
+    if reintentos_restantes <= 0:
+        print("Error: Se agotaron los reintentos de envio. No se pudo guardar el archivo. Intetelo mas tarde")
+        return False
+    try:
+        with open(ruta_fisica, "wb") as f:
+            f.write(contenido)
+        return True
+    except Exception as e:
+        print(f"Fallo al escribir el archivo ({e}). Reintentos restantes: {reintentos_restantes - 1}")
+        return guardar_archivo_recursivo(contenido, ruta_fisica, reintentos_restantes - 1)
+
+def guardar_evidencias(expediente_codigo: str, archivos_data: list):
+    """Procesa los metadatos y realiza la subida con manejo recursivo de reintentos."""
+    if not archivos_data:
+        return
+        
+    os.makedirs("static/uploads", exist_ok=True)
+    fecha_subida = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    fecha_str_nombre = datetime.now().strftime("%Y%m%d_%H%M%S") # Formato para la fecha del nombre que se generara
+    
+    for archivo in archivos_data:
+        nombre_original = archivo["filename"]
+        contenido = archivo["content"]
+        
+        # Extracción de metadatos
+        extension = os.path.splitext(nombre_original)[1].lower()
+        tamaño_bytes = len(contenido)
+        
+        # Generación de nombre: Date + Codigo + Extension | se hace esto para evitar nombres duplicados
+        nombre_generado = f"{fecha_str_nombre}_{expediente_codigo}{extension}"
+        ruta_fisica = f"static/uploads/{nombre_generado}"#ruta donde se guardara el archivo
+        ruta_web = f"/{ruta_fisica}"
+        
+        # Se elige la funcion recursiva para asegurar la subida con 3 reintentos
+        subida_exitosa = guardar_archivo_recursivo(contenido, ruta_fisica, reintentos_restantes=3)
+        
+        if subida_exitosa:
+            guardar_evidencia_db(expediente_codigo, nombre_generado, ruta_web, extension, tamaño_bytes, fecha_subida)
+
+def obtener_evidencias(codigo):
+    return leer_evidencias_db(codigo)

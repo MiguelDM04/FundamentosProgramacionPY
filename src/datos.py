@@ -47,6 +47,20 @@ def inicializar_db():
     )
     ''')
 
+    # Tabla evidencias | se guardan pdf/imagenes, etc de los usuarios
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS evidencias(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        expediente_codigo TEXT NOT NULL,
+        nombre TEXT NOT NULL,
+        ruta TEXT NOT NULL,
+        extension TEXT NOT NULL,
+        tamaño INTEGER NOT NULL,
+        fecha_subida TEXT NOT NULL,
+        FOREIGN KEY (expediente_codigo) REFERENCES expedientes(codigo)
+    )
+    ''')
+
     #Busca si hay un usuario ya creado si no hay los crea
     cursor.execute("SELECT COUNT(*) FROM usuarios")
     if cursor.fetchone()[0] == 0:
@@ -59,7 +73,7 @@ def inicializar_db():
         cursor.execute("INSERT INTO usuarios (username, password, rol, estado, dni, nombreCompleto, correo, celular, direccion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     ("test", cliente_pass, "cliente", "True", "12345678", "Juan Perez", "juan.perez@gmail.com", "987654321", "Av. Los Rosales 123"))
         
-    conexion.commit()#Confirma los cambios
+        conexion.commit()#Confirma los cambios
     conexion.close()#Cierra conexion para liberar recursos
 
 
@@ -191,3 +205,20 @@ def obtener_ultimo_codigo():
     resultado = cursor.fetchone()
     conexion.close()
     return resultado[0] if resultado else None #devuelve el codigo si no no retorna nada
+
+# EVIDENCIAS
+def guardar_evidencia_db(exp_codigo, nombre, ruta, extension, tamaño, fecha_subida):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("INSERT INTO evidencias (expediente_codigo, nombre, ruta, extension, tamaño, fecha_subida) VALUES (?, ?, ?, ?, ?, ?)",
+                (exp_codigo, nombre, ruta, extension, tamaño, fecha_subida))
+    conexion.commit()
+    conexion.close() 
+
+def leer_evidencias_db(codigo):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT nombre, ruta, extension, tamaño, fecha_subida FROM evidencias WHERE expediente_codigo = ?", (codigo,))
+    filas = cursor.fetchall()
+    conexion.close()
+    return [{"nombre": f[0], "ruta": f[1], "extension": f[2], "tamaño": f[3], "fecha_subida": f[4]} for f in filas]#diccionario

@@ -6,8 +6,6 @@
     padding: 0;
 }
 
-/*Estilos usados en todas las paginas*/
-
 :root {
     --text-primary: #1f2937;
     --text-secondary: #6b7280;
@@ -114,7 +112,7 @@ body {
 /* container principal */
 .main-container {
     flex: 1;
-    max-width: 1350px;
+    max-width: 1200px;
     width: 100%;
     margin: 20px auto;
     padding: 0 20px;
@@ -445,7 +443,7 @@ input:checked + .slider:before {
 
 .data-table th, .data-table td {
     padding: 14px 18px;
-    
+    border-bottom: 1px solid var(--border-color);
 }
 
 .data-table th {
@@ -475,25 +473,28 @@ input:checked + .slider:before {
 /* Botones de accion en tabla */
 .action-cells {
     display: flex;
-    justify-content: center; 
-    align-items: center;     
-    gap: 8px; 
-    width: 100%;             
-    min-height: 40px;        
-}
-
-.action-cells span {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    background-color: var(--bg-secondary);
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 38px;
 }
 
 .btn-thematic {
     border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: 0.2s;
+}
+
+/* NUEVO: Corrección para botones específicos de tabla (quitar borde duplicado y ajustar) */
+.btn-icon-action {
+    border: none; /* Asegura que no haya bordes grises predeterminados */
     padding: 6px 10px;
     border-radius: 6px;
     font-size: 0.75rem;
@@ -501,7 +502,6 @@ input:checked + .slider:before {
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    justify-content: center; 
     gap: 4px;
     transition: 0.2s;
 }
@@ -509,7 +509,7 @@ input:checked + .slider:before {
 .btn-edit {
     background-color: #eff6ff;
     color: #2563eb;
-    border: 1px solid #bfdbfe;
+    border: 1px solid #bfdbfe; /* Bordes temáticos explícitos que reemplazan el borde base */
 }
 
 .btn-edit:hover {
@@ -534,6 +534,23 @@ input:checked + .slider:before {
 
 .btn-reactivate:hover {
     background-color: #a7f3d0;
+}
+
+/* Botón simple de ícono (Ej. Ver evidencias) */
+.btn-icon {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.btn-icon:hover {
+    opacity: 0.85;
 }
 
 /* MODALES */
@@ -665,6 +682,17 @@ input:checked + .slider:before {
     margin-bottom: 15px;
 }
 
+/* Utilidad Especial para Input de File (Evidencias) */
+input[type="file"] {
+    background-color: var(--bg-secondary);
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    border: 1px dashed var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
 /* Clases de utilidad */
 .w-100 {
     width: 100%;
@@ -675,26 +703,10 @@ input:checked + .slider:before {
 .m-bottom-10 {
     margin-bottom: 10px;
 }
-
-/*Scrollbar estilos */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 5px;
-    transition: background 0.2s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--text-secondary);
+.loading-cell {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 20px;
 }
 
 /* Responsivo */

@@ -1,9 +1,11 @@
-from fastapi import FastAPI, HTTPException, Request, Header, Depends
+from fastapi import FastAPI, HTTPException, Request, Header, Depends, File, UploadFile, Form
 from pydantic import BaseModel, Field, EmailStr, field_validator
+from typing import List
 import re #para regex
 from datetime import datetime
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+
 from datos import inicializar_db, guardar_expediente, obtener_usuario
 from logica import (
     buscar_expediente, ordenar_expedientes, 
@@ -12,12 +14,13 @@ from logica import (
     listar_usuarios, eliminar_usuario, activar_usuario,
     buscar_expediente_texto, generar_reporte, generar_codigo, 
     autenticar_usuario, buscar_usuario, modificar_usuario, actualizar_perfil_usuario
+    ,guardar_evidencias, obtener_evidencias
 )
 
 app = FastAPI(
     title="Mesa de Partes Digital",
-    description="API con BD relacional desarrollada para desafio de Fundamentos de Programacion - Semana 09 - Grupo 01",
-    version="2.1"
+    description="API con BD relacional desarrollada para desafio de Fundamentos de Programacion - Grupo 01 - Final",
+    version="2.2"
 )
 
 #Montar los archivos estaticos y las plantillas para usar con Jinja2Templates
@@ -75,13 +78,6 @@ class RegistroClienteRequest(BaseModel):
         if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', v):
             raise ValueError('El nombre completo solo puede contener letras y espacios.')
         return v.strip()
-
-class ExpedienteRequest(BaseModel):
-    # codigo se genera automaticamente
-    username_cliente: str = Field(default="", example="Requerido solo si el Admin registra por otra persona")
-    tramite: str = Field(..., example="Licencia / Subvención / Queja")#Se usara como categoria para filtros en el frontend
-    asunto: str = Field(..., example="Solicitud de licencia de funcionamiento")
-    descripcion: str = Field(..., example="Descripcion del documento detallado...")
 
 class ExpedienteUpdateRequest(BaseModel):
     correo: str = Field(..., example="nuevo_correo@email.com")
@@ -266,9 +262,16 @@ def r_actualizar_perfil(username: str, datos: PerfilUpdatePayload, usuario: str 
 
 
 # >>> EXPEDIENTES <<<
-@app.post("/expedientes/", summary="Registrar nuevo expediente")
-def r_registrar_expediente(exp: ExpedienteRequest, usuario: str = Depends(dependencia_usuario)):
-    """Registra un expediente generando un codigo automatico"""
+@app.post("/expedientes/", summary="Registrar nuevo expediente con evidencias")
+async def r_registrar_expediente(#se removio expediente request y se movio aqui 
+    tramite: str = Form(...),
+    asunto: str = Form(...),
+    descripcion: str = Form(...),
+    username_cliente: str = Form(""),
+    evidencias: List[UploadFile] = File([]),
+    usuario: str = Depends(dependencia_usuario)
+):
+    """Registra un expediente genera un codigo automatico y guarda evidencias adjuntadas"""
     datos_usuario = obtener_usuario(usuario)
     rol = datos_usuario[3]
 
@@ -276,22 +279,45 @@ def r_registrar_expediente(exp: ExpedienteRequest, usuario: str = Depends(depend
     if rol == "cliente":
         propietario_username = usuario
     else:
-        if not exp.username_cliente:#En caso sea un admin ingresando un expediente y esta vacio
+        if not username_cliente: # En caso sea un admin ingresando un expediente y esta vacio
             raise HTTPException(status_code=400, detail="El Administrador debe especificar el username_cliente.")
-        if not obtener_usuario(exp.username_cliente):#En caso sea admin y se equivoca de username
+        if not obtener_usuario(username_cliente): # En caso sea admin y se equivoca de username
             raise HTTPException(status_code=404, detail="El username no es correcto.")
-        propietario_username = exp.username_cliente
+        propietario_username = username_cliente
 
     # Genera el codigo del expediente
     nuevo_codigo = generar_codigo()
     # Obtiene la fecha para fecha_creacion y fecha_modificacion
     fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     
+    # Guarda los datos del expediente
     guardar_expediente(
-        nuevo_codigo, propietario_username, exp.tramite, exp.asunto, 
-        exp.descripcion, "Recibido", fecha_actual, fecha_actual, "True"
+        nuevo_codigo, propietario_username, tramite, asunto, 
+        descripcion, "Recibido", fecha_actual, fecha_actual, "True"
     )
+
+    # Lee los archivos subidos en memoria y los envia a la logica
+    archivos_procesar = []
+    if evidencias:
+        for archivo in evidencias:
+            if archivo.filename:
+                contenido = await archivo.read() # Await es necesario para leer archivos async en FastAPI
+                archivos_procesar.append({
+                    "filename": archivo.filename,
+                    "content": contenido
+                })
+    
+    # Llama a la función de logica.py para guardarlo
+    if archivos_procesar:
+        guardar_evidencias(nuevo_codigo, archivos_procesar)
+
     return {"mensaje": "Expediente registrado exitosamente.", "codigo_generado": nuevo_codigo}
+
+@app.get("/expedientes/{codigo}/evidencias", summary="Obtener evidencias de un expediente")
+def r_obtener_evidencias(codigo: str, usuario: str = Depends(dependencia_usuario)):
+    """Retorna la lista de archivos (imágenes/PDF) adjuntos a un expediente"""
+    evidencias = obtener_evidencias(codigo)
+    return {"evidencias": evidencias}
 
 @app.get("/expedientes/", summary="Listar expedientes con bubble sort")
 def r_listar_expedientes(estado: str = "activos", usuario: str = Depends(dependencia_usuario)):
